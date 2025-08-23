@@ -2,8 +2,11 @@
 // import reactLogo from './assets/react.svg'
 // import viteLogo from '/vite.svg'
 import './App.css'
+import Header from './components/header'
+
 
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+
 
 
 function App() {
@@ -15,17 +18,16 @@ function App() {
       <Router>
 
       {/* Section (Header) */}
-        <section>
 
+        <section className='header-section'>
+          <Header />
         </section>
 
 
       {/* Section (Main) */}
-        <section>
+        <section className='main-section'>
           <Routes>
-
           </Routes>
-
         </section>
 
 
