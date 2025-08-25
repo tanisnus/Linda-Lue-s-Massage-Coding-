@@ -26,11 +26,11 @@ export default function Header() {
                 </li>
 
                 <li>
-                    <Link to='/'>Services</Link>
+                    <Link to='/service'>Services</Link>
                 </li>
 
                 <li>
-                    <Link to='/'>Contact Us</Link>
+                    <Link to='/contact'>Contact Us</Link>
                 </li>
             </ul>
 
