@@ -1,7 +1,7 @@
 /* Home Page Styles */
 .home-container {
     min-height: 100vh;
-    background: linear-gradient(135deg, #FDF2F8 0%, #FCE7F3 100%);
+    background: linear-gradient(135deg, #e2eb95 0%, #cce79e 100%);
     display: flex;
     position: relative;
     padding-top: 70px; /* Account for fixed header */
