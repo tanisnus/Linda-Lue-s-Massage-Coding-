@@ -1,0 +1,364 @@
+/* Home Page Styles */
+.home-container {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #e2eb95 0%, #cce79e 100%);
+    display: flex;
+    position: relative;
+    padding-top: 70px; /* Account for fixed header */
+}
+
+    /* Left Content Section */
+    .left-content {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        padding: 0 80px;
+        position: relative;
+    }
+
+        /* Content Wrapper */
+        .content-wrapper {
+            max-width: 500px;
+            position: relative;
+        }
+
+            /* Wellbeing Badge */
+            .wellbeing-badge {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                margin-bottom: 24px;
+            }
+
+
+                .leaf-icon {
+                    font-size: 16px;
+                    color: #E91E63;
+                }
+
+                .badge-text {
+                    font-size: 12px;
+                    font-weight: 600;
+                    color: #9CA3AF;
+                    letter-spacing: 1.5px;
+                    text-transform: uppercase;
+                }
+
+
+
+            /* Main Heading */
+            .main-heading {
+                font-size: 48px;
+                font-weight: 700;
+                color: #1F2937;
+                line-height: 1.2;
+                margin-bottom: 24px;
+                font-family: 'Georgia', serif;
+            }
+
+
+
+            /* Description */
+            .description {
+                font-size: 18px;
+                color: #6B7280;
+                line-height: 1.6;
+                margin-bottom: 40px;
+                max-width: 450px;
+            }
+
+
+
+            /* CTA Button */
+            .cta-button {
+                background: linear-gradient(135deg, #E91E63 0%, #C2185B 100%);
+                color: white;
+                border: none;
+                padding: 16px 32px;
+                border-radius: 50px;
+                font-size: 16px;
+                font-weight: 600;
+                cursor: pointer;
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                transition: all 0.3s ease;
+                box-shadow: 0 4px 15px rgba(233, 30, 99, 0.3);
+            }
+
+                .cta-button:hover {
+                    transform: translateY(-2px);
+                    box-shadow: 0 6px 20px rgba(233, 30, 99, 0.4);
+                }
+
+
+                .arrow {
+                    font-size: 18px;
+                    transition: transform 0.3s ease;
+     
+     
+                }
+
+
+                .cta-button:hover .arrow {
+                    transform: translateX(4px);
+                }
+
+
+
+
+            /* Slider Dots */
+            .slider-dots {
+                display: flex;
+                gap: 12px;
+                margin-top: 60px;
+            }
+
+
+
+                .dot {
+                    width: 12px;
+                    height: 12px;
+                    border-radius: 50%;
+                    background-color: #E5E7EB;
+                    cursor: pointer;
+                    transition: all 0.3s ease;
+                }
+
+
+                .dot.active {
+                    background-color: #E91E63;
+                    transform: scale(1.2);
+                }
+
+
+            /* Bamboo Decoration */
+            .bamboo-decoration {
+                position: absolute;
+                bottom: -40px;
+                left: -60px;
+                font-size: 80px;
+                opacity: 0.1;
+                color: #E91E63;
+            }
+
+
+
+
+    /* Right Content Section */
+    .right-content {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        padding: 40px;
+    }
+
+        /* Image Container */
+        .image-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+        }
+
+
+            /* Main Oval Image */
+            .main-image {
+                position: relative;
+                z-index: 2;
+            }
+
+                /* Oval Frame */
+                .oval-frame {
+                    width: 400px;
+                    height: 300px;
+                    background: linear-gradient(135deg, #FCE7F3 0%, #F3E5F5 100%);
+                    border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    border: 2px solid rgba(233, 30, 99, 0.2);
+                    box-shadow: 0 20px 40px rgba(233, 30, 99, 0.1);
+                }
+
+                    /* Spa Scene */
+                    .spa-scene {
+                        position: relative;
+                        width: 100%;
+                        height: 100%;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                    }
+
+                        /* Person Receiving Massage */
+                        .person-receiving-massage {
+                            font-size: 120px;
+                            color: #E91E63;
+                            opacity: 0.8;
+                        }
+
+                            /* Lily Flower */
+                            .lily-flower {
+                                position: absolute;
+                                top: 20px;
+                                right: 40px;
+                                font-size: 24px;
+                                color: #E91E63;
+                            }
+
+                        /* Massage Hands */
+                        .massage-hands {
+                            position: absolute;
+                            bottom: 40px;
+                            left: 60px;
+                            font-size: 32px;
+                            color: #C2185B;
+                        }
+
+                        /* Spa Products */
+                        .spa-products {
+                            position: absolute;
+                            top: 60px;
+                            left: 40px;
+                            display: flex;
+                            flex-direction: column;
+                            gap: 8px;
+                        }
+
+                            /* Herbal Compress */
+                            .herbal-compress {
+                                font-size: 20px;
+                                color: #9CA3AF;
+                            }
+
+                            /* Aromatherapy Bottles */
+                            .aromatherapy-bottles {
+                                font-size: 16px;
+                                color: #E91E63;
+                            }
+
+
+
+            /* Secondary Circular Image */
+            .secondary-image {
+                position: absolute;
+                bottom: 40px;
+                right: 60px;
+                z-index: 3;
+            }
+
+                /* Circular Frame */
+                .circular-frame {
+                    width: 120px;
+                    height: 120px;
+                    background: white;
+                    border-radius: 50%;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    border: 2px solid rgba(233, 30, 99, 0.2);
+                    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+                }
+
+
+                    /* Facial Treatment */
+                    .facial-treatment {
+                        font-size: 48px;
+                        color: #E91E63;
+                    }
+
+
+            /* Spa Stones Decoration */
+            .spa-stones {
+                position: absolute;
+                bottom: -20px;
+                right: -40px;
+                font-size: 60px;
+                opacity: 0.1;
+                color: #E91E63;
+            }
+
+
+
+    /* Social Media Sidebar */
+    .social-sidebar {
+        position: fixed;
+        right: 40px;
+        top: 50%;
+        transform: translateY(-50%);
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+        z-index: 10;
+    }
+
+        .social-icon {
+            width: 40px;
+            height: 40px;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            font-size: 18px;
+        }
+
+        .social-icon:hover {
+            background: #E91E63;
+            color: white;
+            transform: translateY(-2px);
+        }
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+    .home-container {
+        flex-direction: column;
+    }
+    
+    .left-content {
+        padding: 40px;
+        text-align: center;
+    }
+    
+    .main-heading {
+        font-size: 36px;
+    }
+    
+    .oval-frame {
+        width: 300px;
+        height: 220px;
+    }
+    
+    .social-sidebar {
+        display: none;
+    }
+}
+
+@media (max-width: 768px) {
+    .left-content {
+        padding: 20px;
+    }
+    
+    .main-heading {
+        font-size: 28px;
+    }
+    
+    .description {
+        font-size: 16px;
+    }
+    
+    .oval-frame {
+        width: 250px;
+        height: 180px;
+    }
+    
+    .circular-frame {
+        width: 80px;
+        height: 80px;
+    }
+}

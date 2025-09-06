@@ -1,0 +1,422 @@
+/* Service Page Styles */
+.service-container {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #e2eb95 0%, #cce79e 100%);
+    padding-top: 70px; /* Account for fixed header */
+}
+
+/* Hero Section */
+.service-hero {
+    padding: 80px 40px;
+    text-align: center;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
+    backdrop-filter: blur(10px);
+}
+
+.hero-content {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.wellbeing-badge {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-bottom: 24px;
+}
+
+.leaf-icon {
+    font-size: 16px;
+    color: #E91E63;
+}
+
+.badge-text {
+    font-size: 12px;
+    font-weight: 600;
+    color: #9CA3AF;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+}
+
+.main-heading {
+    font-size: 48px;
+    font-weight: 700;
+    color: #1F2937;
+    line-height: 1.2;
+    margin-bottom: 24px;
+    font-family: 'Georgia', serif;
+}
+
+.description {
+    font-size: 18px;
+    color: #6B7280;
+    line-height: 1.6;
+    margin-bottom: 40px;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* Services Section */
+.services-section {
+    padding: 60px 40px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.services-content {
+    display: flex;
+    flex-direction: column;
+    gap: 60px;
+}
+
+/* Service Category */
+.service-category {
+    background: white;
+    border-radius: 20px;
+    padding: 40px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(233, 30, 99, 0.1);
+}
+
+.category-title {
+    font-size: 32px;
+    font-weight: 700;
+    color: #1F2937;
+    text-align: center;
+    margin-bottom: 40px;
+    font-family: 'Georgia', serif;
+    position: relative;
+}
+
+.category-title::after {
+    content: '';
+    position: absolute;
+    bottom: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60px;
+    height: 3px;
+    background: linear-gradient(135deg, #E91E63 0%, #C2185B 100%);
+    border-radius: 2px;
+}
+
+/* Pricing Grid */
+.pricing-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 30px;
+    margin-top: 40px;
+}
+
+.pricing-card {
+    background: linear-gradient(135deg, #FCE7F3 0%, #F3E5F5 100%);
+    border-radius: 16px;
+    padding: 30px 20px;
+    text-align: center;
+    border: 2px solid rgba(233, 30, 99, 0.1);
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.pricing-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 35px rgba(233, 30, 99, 0.2);
+    border-color: rgba(233, 30, 99, 0.3);
+}
+
+.pricing-card.featured {
+    background: linear-gradient(135deg, #E91E63 0%, #C2185B 100%);
+    color: white;
+    transform: scale(1.05);
+    border-color: #E91E63;
+}
+
+.pricing-card.featured:hover {
+    transform: scale(1.05) translateY(-5px);
+}
+
+.popular-badge {
+    position: absolute;
+    top: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #FFD700;
+    color: #1F2937;
+    padding: 5px 15px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.service-icon {
+    font-size: 48px;
+    margin-bottom: 20px;
+}
+
+.service-name {
+    font-size: 24px;
+    font-weight: 700;
+    margin-bottom: 15px;
+    color: #1F2937;
+}
+
+.pricing-card.featured .service-name {
+    color: white;
+}
+
+.service-description {
+    font-size: 14px;
+    color: #6B7280;
+    margin-bottom: 20px;
+    line-height: 1.5;
+}
+
+.pricing-card.featured .service-description {
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.price {
+    font-size: 32px;
+    font-weight: 700;
+    color: #E91E63;
+    font-family: 'Georgia', serif;
+}
+
+.pricing-card.featured .price {
+    color: white;
+}
+
+/* Couple Massage Card */
+.couple-massage-card {
+    background: linear-gradient(135deg, #FCE7F3 0%, #F3E5F5 100%);
+    border-radius: 20px;
+    padding: 40px;
+    display: flex;
+    align-items: center;
+    gap: 40px;
+    border: 2px solid rgba(233, 30, 99, 0.2);
+    box-shadow: 0 10px 30px rgba(233, 30, 99, 0.1);
+}
+
+.couple-icon {
+    font-size: 80px;
+    flex-shrink: 0;
+}
+
+.couple-content {
+    flex: 1;
+}
+
+.couple-title {
+    font-size: 28px;
+    font-weight: 700;
+    color: #1F2937;
+    margin-bottom: 15px;
+    font-family: 'Georgia', serif;
+}
+
+.couple-description {
+    font-size: 16px;
+    color: #6B7280;
+    line-height: 1.6;
+    margin-bottom: 20px;
+}
+
+.couple-price {
+    font-size: 36px;
+    font-weight: 700;
+    color: #E91E63;
+    font-family: 'Georgia', serif;
+    margin-bottom: 5px;
+}
+
+.couple-note {
+    font-size: 14px;
+    color: #9CA3AF;
+    font-style: italic;
+}
+
+/* Additional Information */
+.additional-info {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 30px;
+    margin-top: 40px;
+}
+
+.info-card {
+    background: white;
+    border-radius: 16px;
+    padding: 30px;
+    text-align: center;
+    border: 2px solid rgba(233, 30, 99, 0.1);
+    transition: all 0.3s ease;
+}
+
+.info-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 25px rgba(233, 30, 99, 0.15);
+    border-color: rgba(233, 30, 99, 0.2);
+}
+
+.info-icon {
+    font-size: 40px;
+    margin-bottom: 20px;
+}
+
+.info-card h4 {
+    font-size: 20px;
+    font-weight: 700;
+    color: #1F2937;
+    margin-bottom: 15px;
+    font-family: 'Georgia', serif;
+}
+
+.info-card p {
+    font-size: 14px;
+    color: #6B7280;
+    line-height: 1.6;
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+    .service-hero {
+        padding: 60px 20px;
+    }
+    
+    .main-heading {
+        font-size: 36px;
+    }
+    
+    .services-section {
+        padding: 40px 20px;
+    }
+    
+    .service-category {
+        padding: 30px 20px;
+    }
+    
+    .couple-massage-card {
+        flex-direction: column;
+        text-align: center;
+        gap: 30px;
+    }
+    
+    .couple-icon {
+        font-size: 60px;
+    }
+}
+
+@media (max-width: 768px) {
+    .service-hero {
+        padding: 40px 15px;
+    }
+    
+    .main-heading {
+        font-size: 28px;
+    }
+    
+    .description {
+        font-size: 16px;
+    }
+    
+    .services-section {
+        padding: 30px 15px;
+    }
+    
+    .service-category {
+        padding: 20px 15px;
+    }
+    
+    .category-title {
+        font-size: 24px;
+    }
+    
+    .pricing-grid {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+    
+    .pricing-card.featured {
+        transform: none;
+    }
+    
+    .pricing-card.featured:hover {
+        transform: translateY(-5px);
+    }
+    
+    .couple-massage-card {
+        padding: 30px 20px;
+    }
+    
+    .couple-title {
+        font-size: 24px;
+    }
+    
+    .couple-price {
+        font-size: 28px;
+    }
+    
+    .additional-info {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+    
+    .info-card {
+        padding: 25px 20px;
+    }
+}
+
+@media (max-width: 480px) {
+    .service-hero {
+        padding: 30px 10px;
+    }
+    
+    .main-heading {
+        font-size: 24px;
+    }
+    
+    .services-section {
+        padding: 20px 10px;
+    }
+    
+    .service-category {
+        padding: 15px 10px;
+    }
+    
+    .pricing-card {
+        padding: 25px 15px;
+    }
+    
+    .service-icon {
+        font-size: 36px;
+    }
+    
+    .service-name {
+        font-size: 20px;
+    }
+    
+    .price {
+        font-size: 24px;
+    }
+    
+    .couple-massage-card {
+        padding: 25px 15px;
+    }
+    
+    .couple-icon {
+        font-size: 48px;
+    }
+    
+    .couple-title {
+        font-size: 20px;
+    }
+    
+    .couple-price {
+        font-size: 24px;
+    }
+}
