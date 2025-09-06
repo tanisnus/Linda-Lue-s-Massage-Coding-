@@ -1,10 +1,19 @@
 import logo from '../images/logo.jpg'
-
+import { useState } from 'react'
 import {Link} from 'react-router-dom'
 import './header.css'
 
 
 export default function Header() {
+    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+
+    const toggleMobileMenu = () => {
+        setIsMobileMenuOpen(!isMobileMenuOpen)
+    }
+
+    const closeMobileMenu = () => {
+        setIsMobileMenuOpen(false)
+    }
 
     return (
         <>
@@ -17,10 +26,19 @@ export default function Header() {
                 <img className='logo-img' src={logo} alt='logo' />
             </div>
 
+            {/* Mobile Menu Button */}
+            <button 
+                className={`mobile-menu-button ${isMobileMenuOpen ? 'active' : ''}`}
+                onClick={toggleMobileMenu}
+                aria-label="Toggle mobile menu"
+            >
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
 
-
-            {/* Top Right (Navigation) */}
-            <ul className='top-right-navigation-list'>
+            {/* Desktop Navigation */}
+            <ul className='top-right-navigation-list desktop-nav'>
                 <li>
                     <Link to='/'>Home</Link>
                 </li>
@@ -34,11 +52,24 @@ export default function Header() {
                 </li>
             </ul>
 
+            {/* Mobile Navigation */}
+            <div className={`mobile-nav ${isMobileMenuOpen ? 'active' : ''}`}>
+                <ul className='mobile-navigation-list'>
+                    <li>
+                        <Link to='/' onClick={closeMobileMenu}>Home</Link>
+                    </li>
+
+                    <li>
+                        <Link to='/service' onClick={closeMobileMenu}>Services</Link>
+                    </li>
+
+                    <li>
+                        <Link to='/contact' onClick={closeMobileMenu}>Contact Us</Link>
+                    </li>
+                </ul>
+            </div>
 
         </nav>
-
-
-
 
         </>
     )
