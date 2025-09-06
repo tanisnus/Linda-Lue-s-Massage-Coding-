@@ -1,4 +1,5 @@
 import './Home.css'
+import { Link } from 'react-router-dom'
 
 export default function Home() {
     return (
@@ -29,10 +30,10 @@ export default function Home() {
                     </p>
 
                     {/* CTA Button */}
-                    <button className="cta-button">
+                    <Link to="/service" className="cta-button">
                         OUR SERVICES
                         <span className="arrow">→</span>
-                    </button>
+                    </Link>
 
                     {/* Slider Dots */}
                     <div className="slider-dots">
