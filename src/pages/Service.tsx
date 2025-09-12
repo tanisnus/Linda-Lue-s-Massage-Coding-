@@ -1,6 +1,11 @@
 
 
 import './Service.css'
+import spaPictureFirst from '../images/spaPictureFirst.jpg'
+import spaPictureSecond from '../images/spaPictureSecond.jpg'
+import spaPictureThird from '../images/spaPictureThird.jpg'
+import spaPictureFourth from '../images/spaPictureFourth.jpg'
+import spaPictureFifth from '../images/spaPictureFifth.jpg'
 
 export default function Service() {
     return (
@@ -27,30 +32,53 @@ export default function Service() {
                     <div className="service-category">
                         <h2 className="category-title">Individual Massage Services</h2>
                         <div className="pricing-grid">
+
+
+                            {/* 30 minutes - Service Offer */}
                             <div className="pricing-card">
-                                <div className="service-icon">💆‍♀️</div>
+                                <div className="image-div-container">
+                                    <img src={spaPictureFirst} alt="woman-spa-1" />
+                                </div>
                                 <h3 className="service-name">30 Minutes</h3>
                                 <p className="service-description">Perfect for a quick relaxation session</p>
                                 <div className="price">$45.00</div>
                             </div>
                             
+                            {/* 60 minutes - Service Offer*/}
                             <div className="pricing-card featured">
                                 <div className="popular-badge">Most Popular</div>
-                                <div className="service-icon">💆‍♂️</div>
+
+                                {/* Image Div Container */}
+                                <div className="image-div-container">
+                                    <img src={spaPictureSecond} alt="spa-picture-second" />
+                                </div>
+
                                 <h3 className="service-name">60 Minutes</h3>
                                 <p className="service-description">Our signature full-body massage experience</p>
                                 <div className="price">$69.00</div>
                             </div>
                             
+                            {/* 90 minutes - Service Offer */}
                             <div className="pricing-card">
-                                <div className="service-icon">🧘‍♀️</div>
+
+                                {/* Image Div Container */}
+                                <div className="image-div-container">
+                                    <img src={spaPictureThird} alt="spa-picture-third" />
+                                </div>
+
                                 <h3 className="service-name">90 Minutes</h3>
                                 <p className="service-description">Extended session for deep relaxation</p>
                                 <div className="price">$99.00</div>
                             </div>
                             
+                            {/* 120 minutes - Service Offer */}
                             <div className="pricing-card">
-                                <div className="service-icon">🌸</div>
+
+                                {/* Image Div Container */}
+                                <div className="image-div-container">
+                                    <img src={spaPictureFourth} alt="spa-picture-fourth" />
+                                </div>
+
                                 <h3 className="service-name">120 Minutes</h3>
                                 <p className="service-description">Ultimate luxury massage experience</p>
                                 <div className="price">$138.00</div>
@@ -58,11 +86,17 @@ export default function Service() {
                         </div>
                     </div>
 
+
+
+
                     {/* Couple Massage Services */}
                     <div className="service-category">
                         <h2 className="category-title">Couple Massage</h2>
                         <div className="couple-massage-card">
-                            <div className="couple-icon">💑</div>
+                              {/* Image Div Container */}
+                              <div className="image-div-container">
+                                    <img src={spaPictureFifth} alt="spa-picture-fifth" />
+                                </div>
                             <div className="couple-content">
                                 <h3 className="couple-title">60 Minutes Couple Massage</h3>
                                 <p className="couple-description">
