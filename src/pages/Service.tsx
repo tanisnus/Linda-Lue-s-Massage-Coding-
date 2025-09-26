@@ -1,11 +1,11 @@
 
 
 import './Service.css'
-import spaPictureFirst from '../images/spaPictureFirst.jpg'
-import spaPictureSecond from '../images/spaPictureSecond.jpg'
-import spaPictureThird from '../images/spaPictureThird.jpg'
-import spaPictureFourth from '../images/spaPictureFourth.jpg'
-import spaPictureFifth from '../images/spaPictureFifth.jpg'
+import spaPictureFirst from '../images/picture_one.jpg'
+import spaPictureSecond from '../images/picture_two.jpg'
+import spaPictureThird from '../images/picture_three.jpg'
+import spaPictureFourth from '../images/picture_four.jpg'
+import spaPictureFifth from '../images/picture_five.jpg'
 
 export default function Service() {
     return (
@@ -13,10 +13,10 @@ export default function Service() {
             {/* Hero Section */}
             <section className="service-hero">
                 <div className="hero-content">
-                    <div className="wellbeing-badge">
+                    {/* <div className="wellbeing-badge">
                         <span className="leaf-icon">🌿</span>
                         <span className="badge-text">Relaxation & Wellness</span>
-                    </div>
+                    </div> */}
                     <h1 className="main-heading">Our Services</h1>
                     <p className="description">
                         Experience the ultimate relaxation with our professional massage services. 
@@ -111,20 +111,21 @@ export default function Service() {
 
                     {/* Additional Information */}
                     <div className="additional-info">
+
                         <div className="info-card">
-                            <div className="info-icon">📅</div>
+                            {/* <div className="info-icon"></div> */}
                             <h4>Booking Information</h4>
                             <p>All services include consultation and aftercare advice. Please arrive 15 minutes early for your appointment.</p>
                         </div>
                         
                         <div className="info-card">
-                            <div className="info-icon">🎁</div>
+                            {/* <div className="info-icon">🎁</div> */}
                             <h4>Gift Certificates</h4>
                             <p>Perfect for special occasions. Gift certificates are available for all services and never expire.</p>
                         </div>
                         
                         <div className="info-card">
-                            <div className="info-icon">⭐</div>
+                            {/* <div className="info-icon">⭐</div> */}
                             <h4>What's Included</h4>
                             <p>Professional massage oils, heated tables, calming music, and a peaceful environment for complete relaxation.</p>
                         </div>
