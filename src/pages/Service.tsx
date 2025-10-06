@@ -14,7 +14,7 @@ export default function Service() {
             <section className="service-hero">
                 <div className="hero-content">
                     <div className="wellbeing-badge">
-                        <span className="badge-text">Relaxation & Wellness</span>
+                        {/* <span className="badge-text">Relaxation & Wellness</span> */}
                     </div>
                     <h1 className="main-heading">Our Services</h1>
                     <p className="description">
