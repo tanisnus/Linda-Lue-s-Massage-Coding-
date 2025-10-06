@@ -1,6 +1,7 @@
 import './Home.css'
 import { Link } from 'react-router-dom'
-import SpaPictureTwo from '../images/picture_two.jpg'
+// import SpaPictureTwo from '../images/picture_two.jpg'
+import SpaPictureOne from '../images/picture_one.jpg'
 
 export default function Home() {
     return (
@@ -9,7 +10,7 @@ export default function Home() {
             <section className="hero-banner">
                 {/* Sliding Background Image */}
                 <div className="sliding-background">
-                    <img src={SpaPictureTwo} alt="spa-background" className="background-image" />
+                    <img src={SpaPictureOne} alt="spa-background" className="background-image" />
                 </div>
                 
                 {/* Spa Elements Overlay
@@ -30,12 +31,11 @@ export default function Home() {
                 {/* Content Overlay */}
                 <div className="hero-content">
                     <div className="content-wrapper">
-                        <p className="permission-text">Give yourself permission</p>
                         <h1 className="main-heading">
-                            Relax, Revive & Rejuvenate
+                            Relax, Recover & Recharge
                         </h1>
                         <p className="sub-heading">
-                            with the most affordable organic spa in town
+                            With the most affordable organic Thai Spa in town
                         </p>
                         
                         <Link to="/service" className="cta-button">
@@ -45,13 +45,6 @@ export default function Home() {
                 </div>
             </section>
 
-            {/* Social Media Sidebar */}
-            <div className="social-sidebar">
-                <div className="social-icon">📘</div>
-                <div className="social-icon">🐦</div>
-                <div className="social-icon">📌</div>
-                <div className="social-icon">📷</div>
-            </div>
         </div>
     )
 }
