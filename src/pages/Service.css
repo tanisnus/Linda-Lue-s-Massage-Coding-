@@ -124,11 +124,11 @@
 
 
                     .pricing-card {
-                        background: linear-gradient(135deg, #E8F5E8 0%, #D4F1D4 100%);
+                        background: linear-gradient(135deg, #FFF8E1 0%, #FFF3C4 100%);
                         border-radius: 16px;
                         padding: 30px 20px;
                         text-align: center;
-                        border: 2px solid rgba(76, 175, 80, 0.2);
+                        border: 2px solid rgba(250, 187, 0, 0.2);
                         transition: all 0.3s ease;
                         position: relative;
                     }
@@ -136,17 +136,17 @@
 
                     .pricing-card:hover {
                         transform: translateY(-5px);
-                        box-shadow: 0 15px 35px rgba(76, 175, 80, 0.25);
-                        border-color: rgba(76, 175, 80, 0.4);
+                        box-shadow: 0 15px 35px rgba(250, 187, 0, 0.25);
+                        border-color: rgba(250, 187, 0, 0.4);
                     }
 
 
                     
                     .pricing-card.featured {
-                        background: linear-gradient(135deg, #2E7D32 0%, #1B5E20 100%);
+                        background: linear-gradient(135deg, #FABB00 0%, #E6A500 100%);
                         color: white;
                         transform: scale(1.05);
-                        border-color: #2E7D32;
+                        border-color: #FABB00;
                     }
 
                     .pricing-card.featured:hover {
@@ -218,7 +218,7 @@
 .price {
     font-size: 32px;
     font-weight: 700;
-    color: #2E7D32;
+    color: #FABB00;
     font-family: 'Georgia', serif;
 }
 
@@ -234,12 +234,12 @@
 
 /* Couple Massage Card */
 .couple-massage-card {
-    background: linear-gradient(135deg, #E8F5E8 0%, #D4F1D4 100%);
+    background: linear-gradient(135deg, #FFF8E1 0%, #FFF3C4 100%);
     border-radius: 16px;
     padding: 25px;
     text-align: center;
-    border: 2px solid rgba(76, 175, 80, 0.3);
-    box-shadow: 0 10px 30px rgba(76, 175, 80, 0.15);
+    border: 2px solid rgba(250, 187, 0, 0.3);
+    box-shadow: 0 10px 30px rgba(250, 187, 0, 0.15);
     transition: all 0.3s ease;
     position: relative;
     max-width: 350px;
@@ -248,8 +248,8 @@
 
 .couple-massage-card:hover {
     transform: translateY(-5px);
-    box-shadow: 0 15px 35px rgba(76, 175, 80, 0.25);
-    border-color: rgba(76, 175, 80, 0.4);
+    box-shadow: 0 15px 35px rgba(250, 187, 0, 0.25);
+    border-color: rgba(250, 187, 0, 0.4);
 }
 
 /* Couple Massage Image Container */
@@ -299,7 +299,7 @@
 .couple-price {
     font-size: 28px;
     font-weight: 700;
-    color: #2E7D32;
+    color: #FABB00;
     font-family: 'Georgia', serif;
     margin-bottom: 3px;
 }
@@ -323,15 +323,15 @@
     border-radius: 16px;
     padding: 30px;
     text-align: center;
-    border: 2px solid rgba(76, 175, 80, 0.2);
+    border: 2px solid rgba(250, 187, 0, 0.2);
     transition: all 0.3s ease;
     backdrop-filter: blur(5px);
 }
 
 .info-card:hover {
     transform: translateY(-3px);
-    box-shadow: 0 10px 25px rgba(76, 175, 80, 0.2);
-    border-color: rgba(76, 175, 80, 0.3);
+    box-shadow: 0 10px 25px rgba(250, 187, 0, 0.2);
+    border-color: rgba(250, 187, 0, 0.3);
 }
 
 .info-icon {
