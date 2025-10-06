@@ -1,7 +1,9 @@
 /* Service Page Styles */
 .service-container {
     min-height: 100vh;
-    background: linear-gradient(135deg, #E8F5E8 0%, #C8E6C9 100%);
+    /* background: linear-gradient(135deg, #FABB00 0%, #aacbab 100%); */
+
+    background: linear-gradient(135deg, #FABB00 0%, #aacbab 100%);
     padding-top: 70px; /* Account for fixed header */
 }
 
@@ -9,54 +11,59 @@
 .service-hero {
     padding: 80px 40px;
     padding-bottom: 20px;
-    text-align: center;
+    text-align: left;
     background: linear-gradient(135deg, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0.1) 100%);
     backdrop-filter: blur(10px);
+    position: relative;
 }
 
-.hero-content {
-    max-width: 800px;
+.service-hero .hero-content {
+    max-width: 1200px;
     margin: 0 auto;
-}
-
-.wellbeing-badge {
     display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    margin-bottom: 24px;
+    flex-direction: column;
+    align-items: flex-start;
+    position: relative;
 }
 
-.leaf-icon {
-    font-size: 16px;
-    color: #E91E63;
+.service-hero .wellbeing-badge {
+    display: flex;
+    align-items: flex-start;
+    justify-content: flex-start;
+    margin-bottom: 20px;
+    position: relative;
 }
 
-.badge-text {
-    font-size: 12px;
-    font-weight: 600;
+.service-hero .badge-text {
+    font-size: 14px;
+    font-weight: 400;
     color: #9CA3AF;
-    letter-spacing: 1.5px;
+    letter-spacing: 2px;
     text-transform: uppercase;
+    line-height: 1.4;
+    text-align: left;
 }
 
-.main-heading {
+.service-hero .main-heading {
     font-size: 48px;
     font-weight: 700;
     color: #1F2937;
     line-height: 1.2;
-    margin-bottom: 24px;
+    margin-bottom: 20px;
     font-family: 'Georgia', serif;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+    text-align: left;
 }
 
-.description {
-    font-size: 18px;
+.service-hero .description {
+    font-size: 16px;
     color: #6B7280;
     line-height: 1.6;
     margin-bottom: 40px;
-    max-width: 600px;
-    margin-left: auto;
-    margin-right: auto;
+    max-width: 500px;
+    text-align: left;
+    margin-left: 0;
+    margin-right: 0;
 }
 
 /* Services Section */
@@ -77,8 +84,8 @@
                 background: rgba(255, 255, 255, 0.95);
                 border-radius: 20px;
                 padding: 40px;
-                box-shadow: 0 10px 30px rgba(76, 175, 80, 0.15);
-                border: 1px solid rgba(76, 175, 80, 0.2);
+                box-shadow: 0 10px 30px rgba(250, 187, 0, 0.2);
+                border: 1px solid rgba(250, 187, 0, 0.3);
                 backdrop-filter: blur(10px);
             }
 
@@ -102,7 +109,7 @@
                     transform: translateX(-50%);
                     width: 60px;
                     height: 3px;
-                    background: linear-gradient(135deg, #2E7D32 0%, #1B5E20 100%);
+                    background: linear-gradient(135deg, #FABB00 0%, #E6A500 100%);
                     border-radius: 2px;
                 }
 
@@ -352,8 +359,12 @@
         padding: 60px 20px;
     }
     
-    .main-heading {
+    .service-hero .main-heading {
         font-size: 36px;
+    }
+    
+    .service-hero .description {
+        max-width: 450px;
     }
     
     .services-section {
@@ -383,12 +394,17 @@
         padding: 40px 15px;
     }
     
-    .main-heading {
+    .service-hero .main-heading {
         font-size: 28px;
     }
     
-    .description {
-        font-size: 16px;
+    .service-hero .description {
+        font-size: 14px;
+        max-width: 400px;
+    }
+    
+    .service-hero .badge-text {
+        font-size: 12px;
     }
     
     .services-section {
@@ -452,8 +468,17 @@
         padding: 30px 10px;
     }
     
-    .main-heading {
+    .service-hero .main-heading {
         font-size: 24px;
+    }
+    
+    .service-hero .description {
+        font-size: 13px;
+        max-width: 350px;
+    }
+    
+    .service-hero .badge-text {
+        font-size: 11px;
     }
     
     .services-section {

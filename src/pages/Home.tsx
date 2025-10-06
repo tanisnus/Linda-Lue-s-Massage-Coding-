@@ -1,85 +1,49 @@
 import './Home.css'
 import { Link } from 'react-router-dom'
+import SpaPictureTwo from '../images/picture_two.jpg'
 
 export default function Home() {
     return (
         <div className="home-container">
-
-
-
-            
-            {/* Left Content Section */}
-            <div className="left-content">
-                <div className="content-wrapper">
-                    {/* Wellbeing Badge */}
-                    <div className="wellbeing-badge">
-                        <span className="leaf-icon">🌿</span>
-                        <span className="badge-text">YOUR WELLBEING</span>
-                    </div>
-
-                    {/* Main Heading */}
-                    <h1 className="main-heading">
-                        100% Natural Beauty and Spa Centre
-                    </h1>
-
-                    {/* Description */}
-                    <p className="description">
-                        Experience the ultimate relaxation with our natural treatments. 
-                        Let our expert therapists help you unwind and restore your inner balance 
-                        through traditional massage techniques and modern wellness practices.
-                    </p>
-
-                    {/* CTA Button */}
-                    <Link to="/service" className="cta-button">
-                        OUR SERVICES
-                        <span className="arrow">→</span>
-                    </Link>
-
-                    {/* Slider Dots */}
-                    <div className="slider-dots">
-                        <div className="dot active"></div>
-                        <div className="dot"></div>
-                        <div className="dot"></div>
-                    </div>
-
-                    {/* Bamboo Decoration */}
-                    <div className="bamboo-decoration">🎋</div>
+            {/* Hero Banner Section */}
+            <section className="hero-banner">
+                {/* Sliding Background Image */}
+                <div className="sliding-background">
+                    <img src={SpaPictureTwo} alt="spa-background" className="background-image" />
                 </div>
-            </div>
-
-
-
-
-            {/* Right Image Section */}
-            <div className="right-content">
-                <div className="image-container">
-                    {/* Main Oval Image */}
-                    <div className="main-image">
-                        <div className="oval-frame">
-                            <div className="spa-scene">
-                                <div className="person-receiving-massage">
-                                    <div className="lily-flower">🌸</div>
-                                </div>
-                                <div className="massage-hands">🤲</div>
-                                <div className="spa-products">
-                                    <div className="herbal-compress">🌿</div>
-                                    <div className="aromatherapy-bottles">🧴</div>
-                                </div>
-                            </div>
-                        </div>
+                
+                {/* Spa Elements Overlay
+                <div className="spa-elements">
+                    <div className="candles">
+                        <div className="candle candle-1"></div>
+                        <div className="candle candle-2"></div>
                     </div>
-
-                    {/* Secondary Circular Image */}
-                    <div className="secondary-image">
-                        <div className="circular-frame">
-                            <div className="facial-treatment">💆‍♀️</div>
-                        </div>
+                    <div className="herbal-compress"></div>
+                    <div className="oil-bottles">
+                        <div className="bottle bottle-1"></div>
+                        <div className="bottle bottle-2"></div>
                     </div>
+                    <div className="plumeria-flower"></div>
+                    <div className="massage-tools"></div>
+                </div> */}
 
-                    {/* Spa Stones Decoration */}
-                    <div className="spa-stones">🪨</div>
+                {/* Content Overlay */}
+                <div className="hero-content">
+                    <div className="content-wrapper">
+                        <p className="permission-text">Give yourself permission</p>
+                        <h1 className="main-heading">
+                            Relax, Revive & Rejuvenate
+                        </h1>
+                        <p className="sub-heading">
+                            with the most affordable organic spa in town
+                        </p>
+                        
+                        <Link to="/service" className="cta-button">
+                            EXPLORE NOW
+                        </Link>
+                    </div>
                 </div>
-            </div>
+            </section>
 
             {/* Social Media Sidebar */}
             <div className="social-sidebar">
@@ -88,8 +52,6 @@ export default function Home() {
                 <div className="social-icon">📌</div>
                 <div className="social-icon">📷</div>
             </div>
-
-            
         </div>
     )
 }
