@@ -39,7 +39,8 @@ export default function Service() {
                                     <img src={spaPictureFirst} alt="woman-spa-1" />
                                 </div>
                                 <h3 className="service-name">30 Minutes</h3>
-                                <p className="service-description">Perfect for a quick relaxation session</p>
+                                <p className="service-description">Swedish Massage</p>
+                                <p className="service-subtitle">Perfect for a quick relaxation session</p>
                                 <div className="price">$45.00</div>
                             </div>
                             
@@ -53,7 +54,8 @@ export default function Service() {
                                 </div>
 
                                 <h3 className="service-name">60 Minutes</h3>
-                                <p className="service-description">Our signature full-body massage experience</p>
+                                <p className="service-description">Swedish Massage</p>
+                                <p className="service-subtitle">Our signature full-body massage experience</p>
                                 <div className="price">$69.00</div>
                             </div>
                             
@@ -66,7 +68,8 @@ export default function Service() {
                                 </div>
 
                                 <h3 className="service-name">90 Minutes</h3>
-                                <p className="service-description">Extended session for deep relaxation</p>
+                                <p className="service-description">Swedish Massage</p>
+                                <p className="service-subtitle">Extended session for deep relaxation</p>
                                 <div className="price">$99.00</div>
                             </div>
                             
@@ -79,8 +82,31 @@ export default function Service() {
                                 </div>
 
                                 <h3 className="service-name">120 Minutes</h3>
-                                <p className="service-description">Ultimate luxury massage experience</p>
+                                <p className="service-description">Swedish Massage</p>
+                                <p className="service-subtitle">Ultimate luxury massage experience</p>
                                 <div className="price">$138.00</div>
+                            </div>
+                            
+                            {/* PreNatal Massage - Service Offer */}
+                            <div className="pricing-card">
+                                <div className="image-div-container">
+                                    <img src={spaPictureFirst} alt="spa-picture-six" />
+                                </div>
+                                <h3 className="service-name">60 Minutes</h3>
+                                <p className="service-description">Prenatal Massage</p>
+                                <p className="service-subtitle">Specialized massage for expecting mothers</p>
+                                <div className="price">$80.00</div>
+                            </div>
+                            
+                            {/* Deep Tissue Massage - Service Offer */}
+                            <div className="pricing-card">
+                                <div className="image-div-container">
+                                    <img src={spaPictureThird} alt="spa-picture-six" />
+                                </div>
+                                <h3 className="service-name">60 Minutes</h3>
+                                <p className="service-description">Deep Tissue Massage</p>
+                                <p className="service-subtitle">Intensive therapy for muscle tension relief</p>
+                                <div className="price">$80.00</div>
                             </div>
                         </div>
                     </div>
