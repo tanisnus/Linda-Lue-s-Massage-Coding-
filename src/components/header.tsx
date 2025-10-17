@@ -48,6 +48,10 @@ export default function Header() {
                 </li>
 
                 <li>
+                    <Link to='/booking'>Book Now</Link>
+                </li>
+
+                <li>
                     <Link to='/contact'>Contact Us</Link>
                 </li>
             </ul>
@@ -61,6 +65,10 @@ export default function Header() {
 
                     <li>
                         <Link to='/service' onClick={closeMobileMenu}>Services</Link>
+                    </li>
+
+                    <li>
+                        <Link to='/booking' onClick={closeMobileMenu}>Book Now</Link>
                     </li>
 
                     <li>

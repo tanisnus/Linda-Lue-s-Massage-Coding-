@@ -8,6 +8,7 @@ import Header from './components/header'
 import Home from './pages/Home'
 import Service from './pages/Service'
 import Contact from './pages/Contact'
+import Booking from './pages/Booking'
 
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 
@@ -35,6 +36,7 @@ function App() {
             <Route element={<Home />} path='/'></Route>
             <Route element={<Service />} path='/service'></Route>
             <Route element={<Contact />} path='/contact'></Route>
+            <Route element={<Booking />} path='/booking'></Route>
 
           </Routes>
         </section>
