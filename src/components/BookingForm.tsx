@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { sendBookingEmails, generateGoogleCalendarLink, BookingEmailData } from '../services/emailService'
+// import { sendBookingEmails, generateGoogleCalendarLink, BookingEmailData } from '../services/emailService'
 import './BookingForm.css'
 
 interface BookingData {
@@ -14,7 +14,10 @@ interface BookingData {
     specialRequests: string
 }
 
+type FormStep = 'personal' | 'service' | 'appointment' | 'requests' | 'review'
+
 export default function BookingForm() {
+    const [currentStep, setCurrentStep] = useState<FormStep>('personal')
     const [bookingData, setBookingData] = useState<BookingData>({
         clientName: '',
         clientEmail: '',
@@ -29,6 +32,7 @@ export default function BookingForm() {
 
     const [isSubmitting, setIsSubmitting] = useState(false)
     const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle')
+    const [validationErrors, setValidationErrors] = useState<Record<string, string>>({})
 
     const services = [
         { name: '30 Minutes Swedish Massage', price: '$45.00', duration: '30' },
@@ -53,12 +57,73 @@ export default function BookingForm() {
         '5:00 PM', '6:00 PM', '7:00 PM'
     ]
 
+    const steps = [
+        { id: 'personal', title: 'Personal Info', icon: '👤' },
+        { id: 'service', title: 'Select Service', icon: '💆‍♀️' },
+        { id: 'appointment', title: 'Date & Time', icon: '📅' },
+        { id: 'requests', title: 'Special Requests', icon: '📝' },
+        { id: 'review', title: 'Review & Book', icon: '✅' }
+    ]
+
+    const validateStep = (step: FormStep): boolean => {
+        const errors: Record<string, string> = {}
+        
+        switch (step) {
+            case 'personal':
+                if (!bookingData.clientName.trim()) errors.clientName = 'Name is required'
+                if (!bookingData.clientEmail.trim()) errors.clientEmail = 'Email is required'
+                else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(bookingData.clientEmail)) {
+                    errors.clientEmail = 'Please enter a valid email'
+                }
+                if (!bookingData.clientPhone.trim()) errors.clientPhone = 'Phone is required'
+                break
+            case 'service':
+                if (!bookingData.serviceType) errors.serviceType = 'Please select a service'
+                break
+            case 'appointment':
+                if (!bookingData.appointmentDate) errors.appointmentDate = 'Please select a date'
+                if (!bookingData.appointmentTime) errors.appointmentTime = 'Please select a time'
+                break
+        }
+        
+        setValidationErrors(errors)
+        return Object.keys(errors).length === 0
+    }
+
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target
         setBookingData(prev => ({
             ...prev,
             [name]: value
         }))
+        
+        // Clear validation error for this field
+        if (validationErrors[name]) {
+            setValidationErrors(prev => ({
+                ...prev,
+                [name]: ''
+            }))
+        }
+    }
+
+    const nextStep = () => {
+        if (validateStep(currentStep)) {
+            const stepIndex = steps.findIndex(step => step.id === currentStep)
+            if (stepIndex < steps.length - 1) {
+                setCurrentStep(steps[stepIndex + 1].id as FormStep)
+            }
+        }
+    }
+
+    const prevStep = () => {
+        const stepIndex = steps.findIndex(step => step.id === currentStep)
+        if (stepIndex > 0) {
+            setCurrentStep(steps[stepIndex - 1].id as FormStep)
+        }
+    }
+
+    const goToStep = (step: FormStep) => {
+        setCurrentStep(step)
     }
 
     const handleServiceSelect = (service: { name: string; price: string; duration: string }) => {
@@ -70,35 +135,15 @@ export default function BookingForm() {
     }
 
     const sendEmails = async (bookingData: BookingData) => {
-        const selectedService = services.find(s => s.name === bookingData.serviceType)
-        const calendarLink = generateGoogleCalendarLink(
-            bookingData.appointmentDate,
-            bookingData.appointmentTime,
-            bookingData.serviceType,
-            selectedService?.duration || '60'
-        )
-
-        // Prepare email data
-        const emailData: BookingEmailData = {
-            client_name: bookingData.clientName,
-            client_email: bookingData.clientEmail,
-            client_phone: bookingData.clientPhone,
-            service_type: bookingData.serviceType,
-            service_price: bookingData.servicePrice,
-            appointment_date: bookingData.appointmentDate,
-            appointment_time: bookingData.appointmentTime,
-            therapist_name: bookingData.therapistName,
-            special_requests: bookingData.specialRequests,
-            calendar_link: calendarLink,
-            shop_email: 'info@lindaluemassage.com', // Replace with your shop email
-            therapist_email: `${bookingData.therapistName.toLowerCase().replace(' ', '.')}@lindaluemassage.com` // Replace with actual therapist emails
-        }
-
-        return await sendBookingEmails(emailData)
+        // Temporarily disabled email functionality
+        console.log('Booking data:', bookingData)
+        return true // Simulate successful booking
     }
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
+        if (!validateStep('review')) return
+        
         setIsSubmitting(true)
         setSubmitStatus('idle')
 
@@ -118,6 +163,7 @@ export default function BookingForm() {
                     therapistName: '',
                     specialRequests: ''
                 })
+                setCurrentStep('personal')
             } else {
                 setSubmitStatus('error')
             }
@@ -129,16 +175,11 @@ export default function BookingForm() {
         }
     }
 
+    const renderStepContent = () => {
+        switch (currentStep) {
+            case 'personal':
     return (
-        <div className="booking-form-container">
-            <div className="booking-form-header">
-                <h2>Book Your Appointment</h2>
-                <p>Fill out the form below to schedule your massage session</p>
-            </div>
-
-            <form onSubmit={handleSubmit} className="booking-form">
-                {/* Client Information */}
-                <div className="form-section">
+                    <div className="step-content">
                     <h3>Your Information</h3>
                     <div className="form-row">
                         <div className="form-group">
@@ -149,8 +190,9 @@ export default function BookingForm() {
                                 name="clientName"
                                 value={bookingData.clientName}
                                 onChange={handleInputChange}
-                                required
+                                    className={validationErrors.clientName ? 'error' : ''}
                             />
+                                {validationErrors.clientName && <span className="error-message">{validationErrors.clientName}</span>}
                         </div>
                         <div className="form-group">
                             <label htmlFor="clientEmail">Email Address *</label>
@@ -160,9 +202,10 @@ export default function BookingForm() {
                                 name="clientEmail"
                                 value={bookingData.clientEmail}
                                 onChange={handleInputChange}
-                                required
+                                    className={validationErrors.clientEmail ? 'error' : ''}
                             />
-                        </div>
+                                {validationErrors.clientEmail && <span className="error-message">{validationErrors.clientEmail}</span>}
+                            </div>
                     </div>
                     <div className="form-row">
                         <div className="form-group">
@@ -173,8 +216,9 @@ export default function BookingForm() {
                                 name="clientPhone"
                                 value={bookingData.clientPhone}
                                 onChange={handleInputChange}
-                                required
+                                    className={validationErrors.clientPhone ? 'error' : ''}
                             />
+                                {validationErrors.clientPhone && <span className="error-message">{validationErrors.clientPhone}</span>}
                         </div>
                         <div className="form-group">
                             <label htmlFor="therapistName">Preferred Therapist</label>
@@ -192,9 +236,11 @@ export default function BookingForm() {
                         </div>
                     </div>
                 </div>
+                )
 
-                {/* Service Selection */}
-                <div className="form-section">
+            case 'service':
+                return (
+                    <div className="step-content">
                     <h3>Select Your Service</h3>
                     <div className="service-grid">
                         {services.map((service, index) => (
@@ -209,10 +255,13 @@ export default function BookingForm() {
                             </div>
                         ))}
                     </div>
+                        {validationErrors.serviceType && <span className="error-message">{validationErrors.serviceType}</span>}
                 </div>
+                )
 
-                {/* Appointment Details */}
-                <div className="form-section">
+            case 'appointment':
+                return (
+                    <div className="step-content">
                     <h3>Appointment Details</h3>
                     <div className="form-row">
                         <div className="form-group">
@@ -224,8 +273,9 @@ export default function BookingForm() {
                                 value={bookingData.appointmentDate}
                                 onChange={handleInputChange}
                                 min={new Date().toISOString().split('T')[0]}
-                                required
+                                    className={validationErrors.appointmentDate ? 'error' : ''}
                             />
+                                {validationErrors.appointmentDate && <span className="error-message">{validationErrors.appointmentDate}</span>}
                         </div>
                         <div className="form-group">
                             <label htmlFor="appointmentTime">Time *</label>
@@ -234,19 +284,22 @@ export default function BookingForm() {
                                 name="appointmentTime"
                                 value={bookingData.appointmentTime}
                                 onChange={handleInputChange}
-                                required
+                                    className={validationErrors.appointmentTime ? 'error' : ''}
                             >
                                 <option value="">Select a time</option>
                                 {timeSlots.map(time => (
                                     <option key={time} value={time}>{time}</option>
                                 ))}
                             </select>
+                                {validationErrors.appointmentTime && <span className="error-message">{validationErrors.appointmentTime}</span>}
+                            </div>
                         </div>
                     </div>
-                </div>
+                )
 
-                {/* Special Requests */}
-                <div className="form-section">
+            case 'requests':
+                return (
+                    <div className="step-content">
                     <h3>Special Requests</h3>
                     <div className="form-group">
                         <label htmlFor="specialRequests">Any special requests or notes?</label>
@@ -260,9 +313,106 @@ export default function BookingForm() {
                         />
                     </div>
                 </div>
+                )
 
-                {/* Submit Button */}
-                <div className="form-submit">
+            case 'review':
+                return (
+                    <div className="step-content">
+                        <h3>Review Your Booking</h3>
+                        <div className="review-summary">
+                            <div className="review-section">
+                                <h4>Personal Information</h4>
+                                <p><strong>Name:</strong> {bookingData.clientName}</p>
+                                <p><strong>Email:</strong> {bookingData.clientEmail}</p>
+                                <p><strong>Phone:</strong> {bookingData.clientPhone}</p>
+                                {bookingData.therapistName && <p><strong>Therapist:</strong> {bookingData.therapistName}</p>}
+                            </div>
+                            
+                            <div className="review-section">
+                                <h4>Service Details</h4>
+                                <p><strong>Service:</strong> {bookingData.serviceType}</p>
+                                <p><strong>Price:</strong> {bookingData.servicePrice}</p>
+                            </div>
+                            
+                            <div className="review-section">
+                                <h4>Appointment</h4>
+                                <p><strong>Date:</strong> {new Date(bookingData.appointmentDate).toLocaleDateString()}</p>
+                                <p><strong>Time:</strong> {bookingData.appointmentTime}</p>
+                            </div>
+                            
+                            {bookingData.specialRequests && (
+                                <div className="review-section">
+                                    <h4>Special Requests</h4>
+                                    <p>{bookingData.specialRequests}</p>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                )
+
+            default:
+                return null
+        }
+    }
+
+    return (
+        <div className="booking-form-container">
+            <div className="booking-form-header">
+                <h2>Book Your Appointment</h2>
+                <p>Follow the steps below to schedule your massage session</p>
+            </div>
+
+            {/* Progress Indicator */}
+            <div className="progress-indicator">
+                {steps.map((step, index) => {
+                    const isActive = currentStep === step.id
+                    const isCompleted = steps.findIndex(s => s.id === currentStep) > index
+                    const isClickable = index <= steps.findIndex(s => s.id === currentStep) + 1
+                    
+                    return (
+                        <div
+                            key={step.id}
+                            className={`progress-step ${isActive ? 'active' : ''} ${isCompleted ? 'completed' : ''} ${isClickable ? 'clickable' : ''}`}
+                            onClick={() => isClickable && goToStep(step.id as FormStep)}
+                        >
+                            <div className="step-icon">
+                                {isCompleted ? '✓' : step.icon}
+                            </div>
+                            <div className="step-info">
+                                <div className="step-title">{step.title}</div>
+                                <div className="step-number">Step {index + 1}</div>
+                            </div>
+                        </div>
+                    )
+                })}
+            </div>
+
+            <form onSubmit={handleSubmit} className="booking-form">
+                <div className="form-section">
+                    {renderStepContent()}
+                </div>
+
+                {/* Navigation Buttons */}
+                <div className="form-navigation">
+                    {currentStep !== 'personal' && (
+                        <button
+                            type="button"
+                            className="nav-button prev-button"
+                            onClick={prevStep}
+                        >
+                            ← Previous
+                        </button>
+                    )}
+                    
+                    {currentStep !== 'review' ? (
+                        <button
+                            type="button"
+                            className="nav-button next-button"
+                            onClick={nextStep}
+                        >
+                            Next →
+                        </button>
+                    ) : (
                     <button
                         type="submit"
                         className="submit-button"
@@ -270,19 +420,14 @@ export default function BookingForm() {
                     >
                         {isSubmitting ? 'Booking Appointment...' : 'Book Appointment'}
                     </button>
+                    )}
                 </div>
 
                 {/* Status Messages */}
                 {submitStatus === 'success' && (
                     <div className="status-message success">
                         <h4>✅ Appointment Booked Successfully!</h4>
-                        <p>You will receive a confirmation email shortly with your appointment details and a Google Calendar link to add the appointment to your calendar.</p>
-                        <p><strong>Emails sent to:</strong></p>
-                        <ul>
-                            <li>📧 You (confirmation with calendar link)</li>
-                            <li>👨‍⚕️ Your therapist (appointment details)</li>
-                            <li>🏢 Massage store (booking notification)</li>
-                        </ul>
+                        <p>Your appointment has been booked! We will contact you to confirm the details.</p>
                     </div>
                 )}
 
