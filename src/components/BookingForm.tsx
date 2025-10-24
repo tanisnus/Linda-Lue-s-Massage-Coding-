@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import emailjs from '@emailjs/browser'
+import { sendBookingEmails, generateGoogleCalendarLink, BookingEmailData } from '../services/emailService'
 import './BookingForm.css'
 
 interface BookingData {
@@ -69,28 +69,6 @@ export default function BookingForm() {
         }))
     }
 
-    const generateGoogleCalendarLink = (appointmentDate: string, appointmentTime: string, serviceType: string, duration: string) => {
-        const startDate = new Date(`${appointmentDate}T${appointmentTime}`)
-        const endDate = new Date(startDate.getTime() + parseInt(duration) * 60000)
-        
-        const formatDate = (date: Date) => {
-            return date.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z'
-        }
-
-        const details = `Massage Appointment: ${serviceType}`
-        const location = 'Linda Lue\'s Massage & Spa'
-        
-        const params = new URLSearchParams({
-            action: 'TEMPLATE',
-            text: details,
-            dates: `${formatDate(startDate)}/${formatDate(endDate)}`,
-            details: `Service: ${serviceType}\nDuration: ${duration} minutes\nLocation: ${location}`,
-            location: location
-        })
-
-        return `https://calendar.google.com/calendar/render?${params.toString()}`
-    }
-
     const sendEmails = async (bookingData: BookingData) => {
         const selectedService = services.find(s => s.name === bookingData.serviceType)
         const calendarLink = generateGoogleCalendarLink(
@@ -100,8 +78,8 @@ export default function BookingForm() {
             selectedService?.duration || '60'
         )
 
-        // Email template parameters
-        const templateParams = {
+        // Prepare email data
+        const emailData: BookingEmailData = {
             client_name: bookingData.clientName,
             client_email: bookingData.clientEmail,
             client_phone: bookingData.clientPhone,
@@ -116,36 +94,7 @@ export default function BookingForm() {
             therapist_email: `${bookingData.therapistName.toLowerCase().replace(' ', '.')}@lindaluemassage.com` // Replace with actual therapist emails
         }
 
-        try {
-            // Send email to client
-            await emailjs.send(
-                'YOUR_SERVICE_ID', // Replace with your EmailJS service ID
-                'client_template', // Replace with your client email template ID
-                templateParams,
-                'YOUR_PUBLIC_KEY' // Replace with your EmailJS public key
-            )
-
-            // Send email to therapist
-            await emailjs.send(
-                'YOUR_SERVICE_ID',
-                'therapist_template', // Replace with your therapist email template ID
-                templateParams,
-                'YOUR_PUBLIC_KEY'
-            )
-
-            // Send email to shop
-            await emailjs.send(
-                'YOUR_SERVICE_ID',
-                'shop_template', // Replace with your shop email template ID
-                templateParams,
-                'YOUR_PUBLIC_KEY'
-            )
-
-            return true
-        } catch (error) {
-            console.error('Error sending emails:', error)
-            return false
-        }
+        return await sendBookingEmails(emailData)
     }
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -327,7 +276,13 @@ export default function BookingForm() {
                 {submitStatus === 'success' && (
                     <div className="status-message success">
                         <h4>✅ Appointment Booked Successfully!</h4>
-                        <p>You will receive a confirmation email shortly with your appointment details and calendar link.</p>
+                        <p>You will receive a confirmation email shortly with your appointment details and a Google Calendar link to add the appointment to your calendar.</p>
+                        <p><strong>Emails sent to:</strong></p>
+                        <ul>
+                            <li>📧 You (confirmation with calendar link)</li>
+                            <li>👨‍⚕️ Your therapist (appointment details)</li>
+                            <li>🏢 Massage store (booking notification)</li>
+                        </ul>
                     </div>
                 )}
 
