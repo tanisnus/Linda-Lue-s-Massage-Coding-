@@ -1,7 +1,12 @@
 /* Service Page Styles */
 .service-container {
     min-height: 100vh;
-    background: linear-gradient(135deg, #e6ae06 0%, #e6bd06 100%);
+    /* background-color: #9f6c12; */
+
+    /* background-color: #bf8216; */
+
+
+    background: linear-gradient(135deg, #bf8216 0%, #dab473 100%);
 
     /* background: linear-gradient(135deg, #FABB00 0%, #aacbab 100%); */
     padding-top: 70px; /* Account for fixed header */
@@ -11,7 +16,7 @@
 .service-hero {
     padding: 80px 40px;
     padding-bottom: 20px;
-    text-align: left;
+    text-align: center;
     background: linear-gradient(135deg, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0.1) 100%);
     backdrop-filter: blur(10px);
     position: relative;
@@ -22,14 +27,14 @@
     margin: 0 auto;
     display: flex;
     flex-direction: column;
-    align-items: flex-start;
+    align-items: center;
     position: relative;
 }
 
 .service-hero .wellbeing-badge {
     display: flex;
-    align-items: flex-start;
-    justify-content: flex-start;
+    align-items: center;
+    justify-content: center;
     margin-bottom: 20px;
     position: relative;
 }
@@ -41,7 +46,7 @@
     letter-spacing: 2px;
     text-transform: uppercase;
     line-height: 1.4;
-    text-align: left;
+    text-align: center;
 }
 
 .service-hero .main-heading {
@@ -52,18 +57,90 @@
     margin-bottom: 20px;
     font-family: 'Georgia', serif;
     text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
-    text-align: left;
+    text-align: center;
 }
 
 .service-hero .description {
     font-size: 16px;
     color: #4A3C2A;
     line-height: 1.6;
-    margin-bottom: 40px;
+    margin-bottom: 30px;
     max-width: 500px;
-    text-align: left;
-    margin-left: 0;
-    margin-right: 0;
+    text-align: center;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* Book Now Button Styles */
+.book-now-button {
+    display: inline-block;
+    padding: 15px 35px;
+    font-size: 16px;
+    font-weight: 600;
+    text-decoration: none;
+    border-radius: 50px;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    border: 2px solid transparent;
+    cursor: pointer;
+    font-family: 'Georgia', serif;
+}
+
+.book-now-button.primary {
+    background: linear-gradient(135deg, #8B1538 0%, #5C0E25 100%);
+    color: white;
+    box-shadow: 0 8px 25px rgba(139, 21, 56, 0.4);
+}
+
+.book-now-button.primary:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 35px rgba(139, 21, 56, 0.5);
+    background: linear-gradient(135deg, #5C0E25 0%, #3A0917 100%);
+}
+
+.book-now-button.secondary {
+    background: transparent;
+    color: #8B1538;
+    border: 2px solid #8B1538;
+    box-shadow: 0 8px 25px rgba(139, 21, 56, 0.2);
+}
+
+.book-now-button.secondary:hover {
+    background: linear-gradient(135deg, #8B1538 0%, #5C0E25 100%);
+    color: white;
+    transform: translateY(-3px);
+    box-shadow: 0 12px 35px rgba(139, 21, 56, 0.4);
+}
+
+/* Call to Action Section */
+.cta-section {
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 20px;
+    padding: 50px 40px;
+    text-align: center;
+    margin: 40px 0;
+    box-shadow: 0 10px 30px rgba(250, 187, 0, 0.2);
+    border: 1px solid rgba(250, 187, 0, 0.3);
+    backdrop-filter: blur(10px);
+}
+
+.cta-title {
+    font-size: 28px;
+    font-weight: 700;
+    color: #1F2937;
+    margin-bottom: 15px;
+    font-family: 'Georgia', serif;
+}
+
+.cta-description {
+    font-size: 16px;
+    color: #6B7280;
+    line-height: 1.6;
+    margin-bottom: 30px;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 /* Services Section */
@@ -380,6 +457,19 @@
         max-width: 450px;
     }
     
+    .book-now-button {
+        padding: 12px 30px;
+        font-size: 15px;
+    }
+    
+    .cta-section {
+        padding: 40px 30px;
+    }
+    
+    .cta-title {
+        font-size: 24px;
+    }
+    
     .services-section {
         padding: 15px 20px 40px 20px;
     }
@@ -414,6 +504,24 @@
     .service-hero .description {
         font-size: 14px;
         max-width: 400px;
+    }
+    
+    .book-now-button {
+        padding: 10px 25px;
+        font-size: 14px;
+    }
+    
+    .cta-section {
+        padding: 30px 20px;
+        margin: 30px 0;
+    }
+    
+    .cta-title {
+        font-size: 22px;
+    }
+    
+    .cta-description {
+        font-size: 14px;
     }
     
     .service-hero .badge-text {
@@ -489,6 +597,24 @@
     .service-hero .description {
         font-size: 13px;
         max-width: 350px;
+    }
+    
+    .book-now-button {
+        padding: 8px 20px;
+        font-size: 13px;
+    }
+    
+    .cta-section {
+        padding: 25px 15px;
+        margin: 25px 0;
+    }
+    
+    .cta-title {
+        font-size: 20px;
+    }
+    
+    .cta-description {
+        font-size: 13px;
     }
     
     .service-hero .badge-text {
