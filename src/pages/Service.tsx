@@ -1,6 +1,7 @@
 
 
 import './Service.css'
+import { Link } from 'react-router-dom'
 import spaPictureFirst from '../images/picture_one.jpg'
 import spaPictureSecond from '../images/picture_two.jpg'
 import spaPictureThird from '../images/picture_three.jpg'
@@ -21,6 +22,9 @@ export default function Service() {
                         Experience the ultimate relaxation with our professional massage services. 
                         Choose from our range of treatments designed to rejuvenate your body and mind.
                     </p>
+                    <Link to="/booking" className="book-now-button primary">
+                        Book Now
+                    </Link>
                 </div>
             </section>
 
@@ -132,6 +136,18 @@ export default function Service() {
                                 <div className="couple-note">*Price is for both people</div>
                             </div>
                         </div>
+                    </div>
+
+                    {/* Call to Action Section */}
+                    <div className="cta-section">
+                        <h3 className="cta-title">Ready to Book Your Massage?</h3>
+                        <p className="cta-description">
+                            Choose your preferred service and book your appointment today. 
+                            We're here to help you relax and rejuvenate.
+                        </p>
+                        <Link to="/booking" className="book-now-button secondary">
+                            Book Your Appointment
+                        </Link>
                     </div>
 
                     {/* Additional Information */}
