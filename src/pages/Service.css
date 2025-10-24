@@ -22,6 +22,7 @@
     position: relative;
 }
 
+
 .service-hero .hero-content {
     max-width: 1200px;
     margin: 0 auto;
@@ -470,6 +471,7 @@
         font-size: 24px;
     }
     
+    
     .services-section {
         padding: 15px 20px 40px 20px;
     }
@@ -523,6 +525,7 @@
     .cta-description {
         font-size: 14px;
     }
+    
     
     .service-hero .badge-text {
         font-size: 12px;
@@ -616,6 +619,7 @@
     .cta-description {
         font-size: 13px;
     }
+    
     
     .service-hero .badge-text {
         font-size: 11px;
