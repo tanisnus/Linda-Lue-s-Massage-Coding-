@@ -32,7 +32,6 @@ export default function BookingForm() {
 
     const [isSubmitting, setIsSubmitting] = useState(false)
     const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle')
-    const [validationErrors, setValidationErrors] = useState<Record<string, string>>({})
 
     const services = [
         { name: '30 Minutes Swedish Massage', price: '$45.00', duration: '30' },
@@ -58,37 +57,12 @@ export default function BookingForm() {
     ]
 
     const steps = [
-        { id: 'personal', title: 'Personal Info', icon: '👤' },
-        { id: 'service', title: 'Select Service', icon: '💆‍♀️' },
-        { id: 'appointment', title: 'Date & Time', icon: '📅' },
-        { id: 'requests', title: 'Special Requests', icon: '📝' },
-        { id: 'review', title: 'Review & Book', icon: '✅' }
+        { id: 'personal', title: 'Personal Info', description: 'Your contact details' },
+        { id: 'service', title: 'Service', description: 'Choose your massage' },
+        { id: 'appointment', title: 'Schedule', description: 'Date & time' },
+        { id: 'requests', title: 'Requests', description: 'Special needs' },
+        { id: 'review', title: 'Review', description: 'Confirm booking' }
     ]
-
-    const validateStep = (step: FormStep): boolean => {
-        const errors: Record<string, string> = {}
-        
-        switch (step) {
-            case 'personal':
-                if (!bookingData.clientName.trim()) errors.clientName = 'Name is required'
-                if (!bookingData.clientEmail.trim()) errors.clientEmail = 'Email is required'
-                else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(bookingData.clientEmail)) {
-                    errors.clientEmail = 'Please enter a valid email'
-                }
-                if (!bookingData.clientPhone.trim()) errors.clientPhone = 'Phone is required'
-                break
-            case 'service':
-                if (!bookingData.serviceType) errors.serviceType = 'Please select a service'
-                break
-            case 'appointment':
-                if (!bookingData.appointmentDate) errors.appointmentDate = 'Please select a date'
-                if (!bookingData.appointmentTime) errors.appointmentTime = 'Please select a time'
-                break
-        }
-        
-        setValidationErrors(errors)
-        return Object.keys(errors).length === 0
-    }
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target
@@ -96,34 +70,6 @@ export default function BookingForm() {
             ...prev,
             [name]: value
         }))
-        
-        // Clear validation error for this field
-        if (validationErrors[name]) {
-            setValidationErrors(prev => ({
-                ...prev,
-                [name]: ''
-            }))
-        }
-    }
-
-    const nextStep = () => {
-        if (validateStep(currentStep)) {
-            const stepIndex = steps.findIndex(step => step.id === currentStep)
-            if (stepIndex < steps.length - 1) {
-                setCurrentStep(steps[stepIndex + 1].id as FormStep)
-            }
-        }
-    }
-
-    const prevStep = () => {
-        const stepIndex = steps.findIndex(step => step.id === currentStep)
-        if (stepIndex > 0) {
-            setCurrentStep(steps[stepIndex - 1].id as FormStep)
-        }
-    }
-
-    const goToStep = (step: FormStep) => {
-        setCurrentStep(step)
     }
 
     const handleServiceSelect = (service: { name: string; price: string; duration: string }) => {
@@ -134,16 +80,27 @@ export default function BookingForm() {
         }))
     }
 
+    const nextStep = () => {
+        const stepIndex = steps.findIndex(step => step.id === currentStep)
+        if (stepIndex < steps.length - 1) {
+            setCurrentStep(steps[stepIndex + 1].id as FormStep)
+        }
+    }
+
+    const prevStep = () => {
+        const stepIndex = steps.findIndex(step => step.id === currentStep)
+        if (stepIndex > 0) {
+            setCurrentStep(steps[stepIndex - 1].id as FormStep)
+        }
+    }
+
     const sendEmails = async (bookingData: BookingData) => {
-        // Temporarily disabled email functionality
         console.log('Booking data:', bookingData)
-        return true // Simulate successful booking
+        return true
     }
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
-        if (!validateStep('review')) return
-        
         setIsSubmitting(true)
         setSubmitStatus('idle')
 
@@ -151,7 +108,6 @@ export default function BookingForm() {
             const success = await sendEmails(bookingData)
             if (success) {
                 setSubmitStatus('success')
-                // Reset form
                 setBookingData({
                     clientName: '',
                     clientEmail: '',
@@ -178,120 +134,114 @@ export default function BookingForm() {
     const renderStepContent = () => {
         switch (currentStep) {
             case 'personal':
-    return (
+                return (
                     <div className="step-content">
-                    <h3>Your Information</h3>
-                    <div className="form-row">
-                        <div className="form-group">
-                            <label htmlFor="clientName">Full Name *</label>
-                            <input
-                                type="text"
-                                id="clientName"
-                                name="clientName"
-                                value={bookingData.clientName}
-                                onChange={handleInputChange}
-                                    className={validationErrors.clientName ? 'error' : ''}
-                            />
-                                {validationErrors.clientName && <span className="error-message">{validationErrors.clientName}</span>}
-                        </div>
-                        <div className="form-group">
-                            <label htmlFor="clientEmail">Email Address *</label>
-                            <input
-                                type="email"
-                                id="clientEmail"
-                                name="clientEmail"
-                                value={bookingData.clientEmail}
-                                onChange={handleInputChange}
-                                    className={validationErrors.clientEmail ? 'error' : ''}
-                            />
-                                {validationErrors.clientEmail && <span className="error-message">{validationErrors.clientEmail}</span>}
+                        <h3>Your Information</h3>
+                        <div className="form-row">
+                            <div className="form-group">
+                                <label htmlFor="clientName">Full Name *</label>
+                                <input
+                                    type="text"
+                                    id="clientName"
+                                    name="clientName"
+                                    value={bookingData.clientName}
+                                    onChange={handleInputChange}
+                                    required
+                                />
                             </div>
-                    </div>
-                    <div className="form-row">
-                        <div className="form-group">
-                            <label htmlFor="clientPhone">Phone Number *</label>
-                            <input
-                                type="tel"
-                                id="clientPhone"
-                                name="clientPhone"
-                                value={bookingData.clientPhone}
-                                onChange={handleInputChange}
-                                    className={validationErrors.clientPhone ? 'error' : ''}
-                            />
-                                {validationErrors.clientPhone && <span className="error-message">{validationErrors.clientPhone}</span>}
+                            <div className="form-group">
+                                <label htmlFor="clientEmail">Email Address *</label>
+                                <input
+                                    type="email"
+                                    id="clientEmail"
+                                    name="clientEmail"
+                                    value={bookingData.clientEmail}
+                                    onChange={handleInputChange}
+                                    required
+                                />
+                            </div>
                         </div>
-                        <div className="form-group">
-                            <label htmlFor="therapistName">Preferred Therapist</label>
-                            <select
-                                id="therapistName"
-                                name="therapistName"
-                                value={bookingData.therapistName}
-                                onChange={handleInputChange}
-                            >
-                                <option value="">Select a therapist</option>
-                                {therapists.map(therapist => (
-                                    <option key={therapist} value={therapist}>{therapist}</option>
-                                ))}
-                            </select>
+                        <div className="form-row">
+                            <div className="form-group">
+                                <label htmlFor="clientPhone">Phone Number *</label>
+                                <input
+                                    type="tel"
+                                    id="clientPhone"
+                                    name="clientPhone"
+                                    value={bookingData.clientPhone}
+                                    onChange={handleInputChange}
+                                    required
+                                />
+                            </div>
+                            <div className="form-group">
+                                <label htmlFor="therapistName">Preferred Therapist</label>
+                                <select
+                                    id="therapistName"
+                                    name="therapistName"
+                                    value={bookingData.therapistName}
+                                    onChange={handleInputChange}
+                                >
+                                    <option value="">Select a therapist</option>
+                                    {therapists.map(therapist => (
+                                        <option key={therapist} value={therapist}>{therapist}</option>
+                                    ))}
+                                </select>
+                            </div>
                         </div>
                     </div>
-                </div>
                 )
 
             case 'service':
                 return (
                     <div className="step-content">
-                    <h3>Select Your Service</h3>
-                    <div className="service-grid">
-                        {services.map((service, index) => (
-                            <div
-                                key={index}
-                                className={`service-option ${bookingData.serviceType === service.name ? 'selected' : ''}`}
-                                onClick={() => handleServiceSelect(service)}
-                            >
-                                <h4>{service.name}</h4>
-                                <p className="service-price">{service.price}</p>
-                                <p className="service-duration">{service.duration} minutes</p>
-                            </div>
-                        ))}
+                        <h3>Select Your Service</h3>
+                        <div className="service-grid">
+                            {services.map((service, index) => (
+                                <div
+                                    key={index}
+                                    className={`service-option ${bookingData.serviceType === service.name ? 'selected' : ''}`}
+                                    onClick={() => handleServiceSelect(service)}
+                                >
+                                    <h4>{service.name}</h4>
+                                    <p className="service-price">{service.price}</p>
+                                    <p className="service-duration">{service.duration} minutes</p>
+                                </div>
+                            ))}
+                        </div>
                     </div>
-                        {validationErrors.serviceType && <span className="error-message">{validationErrors.serviceType}</span>}
-                </div>
                 )
 
             case 'appointment':
                 return (
                     <div className="step-content">
-                    <h3>Appointment Details</h3>
-                    <div className="form-row">
-                        <div className="form-group">
-                            <label htmlFor="appointmentDate">Date *</label>
-                            <input
-                                type="date"
-                                id="appointmentDate"
-                                name="appointmentDate"
-                                value={bookingData.appointmentDate}
-                                onChange={handleInputChange}
-                                min={new Date().toISOString().split('T')[0]}
-                                    className={validationErrors.appointmentDate ? 'error' : ''}
-                            />
-                                {validationErrors.appointmentDate && <span className="error-message">{validationErrors.appointmentDate}</span>}
-                        </div>
-                        <div className="form-group">
-                            <label htmlFor="appointmentTime">Time *</label>
-                            <select
-                                id="appointmentTime"
-                                name="appointmentTime"
-                                value={bookingData.appointmentTime}
-                                onChange={handleInputChange}
-                                    className={validationErrors.appointmentTime ? 'error' : ''}
-                            >
-                                <option value="">Select a time</option>
-                                {timeSlots.map(time => (
-                                    <option key={time} value={time}>{time}</option>
-                                ))}
-                            </select>
-                                {validationErrors.appointmentTime && <span className="error-message">{validationErrors.appointmentTime}</span>}
+                        <h3>Appointment Details</h3>
+                        <div className="form-row">
+                            <div className="form-group">
+                                <label htmlFor="appointmentDate">Date *</label>
+                                <input
+                                    type="date"
+                                    id="appointmentDate"
+                                    name="appointmentDate"
+                                    value={bookingData.appointmentDate}
+                                    onChange={handleInputChange}
+                                    min={new Date().toISOString().split('T')[0]}
+                                    required
+                                />
+                            </div>
+                            <div className="form-group">
+                                <label htmlFor="appointmentTime">Time *</label>
+                                <select
+                                    id="appointmentTime"
+                                    name="appointmentTime"
+                                    value={bookingData.appointmentTime}
+                                    onChange={handleInputChange}
+                                    required
+                                >
+                                    <option value="">Select a time</option>
+                                    {timeSlots.map(time => (
+                                        <option key={time} value={time}>{time}</option>
+                                    ))}
+                                </select>
                             </div>
                         </div>
                     </div>
@@ -300,19 +250,19 @@ export default function BookingForm() {
             case 'requests':
                 return (
                     <div className="step-content">
-                    <h3>Special Requests</h3>
-                    <div className="form-group">
-                        <label htmlFor="specialRequests">Any special requests or notes?</label>
-                        <textarea
-                            id="specialRequests"
-                            name="specialRequests"
-                            value={bookingData.specialRequests}
-                            onChange={handleInputChange}
-                            rows={4}
-                            placeholder="Please let us know about any allergies, injuries, or preferences..."
-                        />
+                        <h3>Special Requests</h3>
+                        <div className="form-group">
+                            <label htmlFor="specialRequests">Any special requests or notes?</label>
+                            <textarea
+                                id="specialRequests"
+                                name="specialRequests"
+                                value={bookingData.specialRequests}
+                                onChange={handleInputChange}
+                                rows={4}
+                                placeholder="Please let us know about any allergies, injuries, or preferences..."
+                            />
+                        </div>
                     </div>
-                </div>
                 )
 
             case 'review':
@@ -325,7 +275,7 @@ export default function BookingForm() {
                                 <p><strong>Name:</strong> {bookingData.clientName}</p>
                                 <p><strong>Email:</strong> {bookingData.clientEmail}</p>
                                 <p><strong>Phone:</strong> {bookingData.clientPhone}</p>
-                                {bookingData.therapistName && <p><strong>Therapist:</strong> {bookingData.therapistName}</p>}
+                                {bookingData.therapistName && <p><strong>Preferred Therapist:</strong> {bookingData.therapistName}</p>}
                             </div>
                             
                             <div className="review-section">
@@ -336,7 +286,7 @@ export default function BookingForm() {
                             
                             <div className="review-section">
                                 <h4>Appointment</h4>
-                                <p><strong>Date:</strong> {new Date(bookingData.appointmentDate).toLocaleDateString()}</p>
+                                <p><strong>Date:</strong> {bookingData.appointmentDate}</p>
                                 <p><strong>Time:</strong> {bookingData.appointmentTime}</p>
                             </div>
                             
@@ -366,21 +316,20 @@ export default function BookingForm() {
             <div className="progress-indicator">
                 {steps.map((step, index) => {
                     const isActive = currentStep === step.id
-                    const isCompleted = steps.findIndex(s => s.id === currentStep) > index
-                    const isClickable = index <= steps.findIndex(s => s.id === currentStep) + 1
+                    const currentStepIndex = steps.findIndex(s => s.id === currentStep)
+                    const isCompleted = index < currentStepIndex
                     
                     return (
                         <div
                             key={step.id}
-                            className={`progress-step ${isActive ? 'active' : ''} ${isCompleted ? 'completed' : ''} ${isClickable ? 'clickable' : ''}`}
-                            onClick={() => isClickable && goToStep(step.id as FormStep)}
+                            className={`progress-step ${isActive ? 'active' : ''} ${isCompleted ? 'completed' : ''}`}
                         >
                             <div className="step-icon">
-                                {isCompleted ? '✓' : step.icon}
+                                {isCompleted ? '✓' : index + 1}
                             </div>
                             <div className="step-info">
-                                <div className="step-title">{step.title}</div>
-                                <div className="step-number">Step {index + 1}</div>
+                                <h4>{step.title}</h4>
+                                <p>{step.description}</p>
                             </div>
                         </div>
                     )
@@ -388,38 +337,28 @@ export default function BookingForm() {
             </div>
 
             <form onSubmit={handleSubmit} className="booking-form">
-                <div className="form-section">
-                    {renderStepContent()}
-                </div>
+                {renderStepContent()}
 
                 {/* Navigation Buttons */}
                 <div className="form-navigation">
                     {currentStep !== 'personal' && (
-                        <button
-                            type="button"
-                            className="nav-button prev-button"
-                            onClick={prevStep}
-                        >
+                        <button type="button" onClick={prevStep} className="nav-button prev">
                             ← Previous
                         </button>
                     )}
                     
                     {currentStep !== 'review' ? (
-                        <button
-                            type="button"
-                            className="nav-button next-button"
-                            onClick={nextStep}
-                        >
+                        <button type="button" onClick={nextStep} className="nav-button next">
                             Next →
                         </button>
                     ) : (
-                    <button
-                        type="submit"
-                        className="submit-button"
-                        disabled={isSubmitting}
-                    >
-                        {isSubmitting ? 'Booking Appointment...' : 'Book Appointment'}
-                    </button>
+                        <button
+                            type="submit"
+                            className="submit-button"
+                            disabled={isSubmitting}
+                        >
+                            {isSubmitting ? 'Booking Appointment...' : 'Book Appointment'}
+                        </button>
                     )}
                 </div>
 

@@ -121,6 +121,25 @@
     color: #10B981;
 }
 
+.progress-step.locked {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.progress-step.locked .step-icon {
+    background: #F3F4F6;
+    color: #9CA3AF;
+    border-color: #E5E7EB;
+}
+
+.progress-step.locked .step-title {
+    color: #9CA3AF;
+}
+
+.progress-step.locked .step-number {
+    color: #9CA3AF;
+}
+
 .booking-form {
     display: flex;
     flex-direction: column;
