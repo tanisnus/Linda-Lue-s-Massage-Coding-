@@ -7,7 +7,7 @@
 
 /* Booking Hero Section */
 .booking-hero {
-    padding: 80px 40px;
+    padding: 80px 40px 30px 40px;
     text-align: center;
     background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
     backdrop-filter: blur(10px);
@@ -60,16 +60,171 @@
 
 /* Booking Form Section */
 .booking-form-section {
-    padding: 60px 40px;
+    padding: 20px 40px 60px 40px;
     max-width: 1200px;
     margin: 0 auto;
+}
+
+/* Payment Methods Section */
+.payment-methods-section {
+    padding: 40px;
+    max-width: 1000px;
+    margin: 0 auto;
+}
+
+.payment-methods-container {
+    background: #ffffff;
+    border-radius: 16px;
+    padding: 30px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.06);
+    border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+/* Payment Header */
+.payment-header {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 25px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.payment-header-icon {
+    width: 45px;
+    height: 45px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.25);
+}
+
+.payment-icon-symbol {
+    font-size: 22px;
+    color: white;
+}
+
+.payment-header-content {
+    flex: 1;
+}
+
+.payment-section-title {
+    font-size: 22px;
+    font-weight: 600;
+    color: #1a202c;
+    margin-bottom: 4px;
+    font-family: 'Georgia', serif;
+}
+
+.payment-section-subtitle {
+    font-size: 14px;
+    color: #718096;
+    margin: 0;
+}
+
+/* Payment Options Grid */
+.payment-options-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 16px;
+}
+
+.payment-option-card {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 18px;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.payment-option-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+    border-color: #667eea;
+}
+
+.payment-option-card.credit-card-option {
+    border-color: #f6ad55;
+    background: linear-gradient(135deg, #fff5f5 0%, #fed7d7 100%);
+}
+
+.payment-option-card.credit-card-option:hover {
+    border-color: #ed8936;
+    box-shadow: 0 8px 20px rgba(246, 173, 85, 0.15);
+}
+
+.payment-option-icon {
+    width: 40px;
+    height: 40px;
+    background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 12px;
+    border: 1px solid #e2e8f0;
+}
+
+.payment-option-card.credit-card-option .payment-option-icon {
+    background: linear-gradient(135deg, #fff5f5 0%, #fed7d7 100%);
+    border-color: #f6ad55;
+}
+
+.payment-icon-symbol {
+    font-size: 20px;
+}
+
+.payment-option-content {
+    flex: 1;
+}
+
+.payment-option-name {
+    font-size: 16px;
+    font-weight: 600;
+    color: #2d3748;
+    margin-bottom: 6px;
+    font-family: 'Georgia', serif;
+}
+
+.payment-option-description {
+    font-size: 13px;
+    color: #718096;
+    margin-bottom: 12px;
+    line-height: 1.4;
+}
+
+.payment-option-badge {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 16px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+}
+
+.payment-option-badge.no-fee {
+    background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+    color: white;
+    box-shadow: 0 4px 12px rgba(72, 187, 120, 0.3);
+}
+
+.payment-option-badge.with-fee {
+    background: linear-gradient(135deg, #f6ad55 0%, #ed8936 100%);
+    color: white;
+    box-shadow: 0 4px 12px rgba(246, 173, 85, 0.3);
 }
 
 /* Booking Info Section */
 .booking-info-section {
     padding: 60px 40px;
     background: white;
-    margin: 40px;
+    margin: 40px auto;
+    max-width: 1200px;
     border-radius: 20px;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
     border: 1px solid rgba(233, 30, 99, 0.1);
@@ -79,6 +234,9 @@
     max-width: 1000px;
     margin: 0 auto;
     text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
 .booking-info-content h2 {
@@ -87,13 +245,18 @@
     color: #1F2937;
     margin-bottom: 40px;
     font-family: 'Georgia', serif;
+    text-align: center;
+    width: 100%;
 }
 
 .info-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    grid-template-columns: repeat(3, 1fr);
     gap: 30px;
     margin-top: 40px;
+    width: 100%;
+    max-width: 900px;
+    justify-items: center;
 }
 
 .info-item {
@@ -103,6 +266,12 @@
     border-radius: 16px;
     border: 2px solid rgba(233, 30, 99, 0.1);
     transition: all 0.3s ease;
+    width: 100%;
+    max-width: 280px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
 }
 
 .info-item:hover {
@@ -134,8 +303,30 @@
 
 /* Responsive Design */
 @media (max-width: 1024px) {
+    .info-grid {
+        max-width: 800px;
+    }
+    
+    .info-item {
+        max-width: 250px;
+    }
+}
+
+@media (max-width: 900px) {
+    .info-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 25px;
+        max-width: 600px;
+    }
+    
+    .info-item {
+        max-width: 100%;
+    }
+}
+
+@media (max-width: 768px) {
     .booking-hero {
-        padding: 60px 20px;
+        padding: 60px 20px 20px 20px;
     }
     
     .main-heading {
@@ -143,7 +334,35 @@
     }
     
     .booking-form-section {
-        padding: 40px 20px;
+        padding: 15px 20px 40px 20px;
+    }
+    
+    .payment-methods-section {
+        padding: 30px 20px;
+    }
+    
+    .payment-methods-container {
+        padding: 25px 20px;
+    }
+    
+    .payment-header {
+        flex-direction: column;
+        text-align: center;
+        gap: 12px;
+    }
+    
+    .payment-header-icon {
+        width: 40px;
+        height: 40px;
+    }
+    
+    .payment-section-title {
+        font-size: 20px;
+    }
+    
+    .payment-options-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 14px;
     }
     
     .booking-info-section {
@@ -154,7 +373,7 @@
 
 @media (max-width: 768px) {
     .booking-hero {
-        padding: 40px 15px;
+        padding: 40px 15px 15px 15px;
     }
     
     .main-heading {
@@ -166,7 +385,54 @@
     }
     
     .booking-form-section {
-        padding: 30px 15px;
+        padding: 10px 15px 30px 15px;
+    }
+    
+    .payment-methods-section {
+        padding: 25px 15px;
+    }
+    
+    .payment-methods-container {
+        padding: 20px 15px;
+    }
+    
+    .payment-header {
+        margin-bottom: 20px;
+        padding-bottom: 15px;
+    }
+    
+    .payment-section-title {
+        font-size: 18px;
+    }
+    
+    .payment-section-subtitle {
+        font-size: 13px;
+    }
+    
+    .payment-options-grid {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+    
+    .payment-option-card {
+        padding: 16px;
+    }
+    
+    .payment-option-icon {
+        width: 35px;
+        height: 35px;
+    }
+    
+    .payment-icon-symbol {
+        font-size: 18px;
+    }
+    
+    .payment-option-name {
+        font-size: 15px;
+    }
+    
+    .payment-option-description {
+        font-size: 12px;
     }
     
     .booking-info-section {
@@ -181,6 +447,11 @@
     .info-grid {
         grid-template-columns: 1fr;
         gap: 20px;
+        max-width: 400px;
+    }
+    
+    .info-item {
+        max-width: 100%;
     }
     
     .info-item {
@@ -190,7 +461,7 @@
 
 @media (max-width: 480px) {
     .booking-hero {
-        padding: 30px 10px;
+        padding: 30px 10px 10px 10px;
     }
     
     .main-heading {
@@ -198,7 +469,7 @@
     }
     
     .booking-form-section {
-        padding: 20px 10px;
+        padding: 5px 10px 20px 10px;
     }
     
     .booking-info-section {

@@ -1,6 +1,6 @@
 /* Booking Form Styles */
 .booking-form-container {
-    max-width: 800px;
+    max-width: 900px;
     margin: 0 auto;
     padding: 40px 20px;
     background: white;
@@ -28,6 +28,118 @@
     line-height: 1.6;
 }
 
+/* Progress Indicator */
+.progress-indicator {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 40px;
+    padding: 20px 0;
+    border-bottom: 2px solid #F3F4F6;
+    position: relative;
+}
+
+.progress-indicator::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: #E5E7EB;
+    z-index: 1;
+}
+
+.progress-step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    z-index: 2;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    padding: 10px;
+    border-radius: 12px;
+    background: white;
+}
+
+.progress-step.clickable:hover {
+    transform: translateY(-2px);
+    background: #F9FAFB;
+}
+
+.step-icon {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    font-weight: 600;
+    margin-bottom: 8px;
+    transition: all 0.3s ease;
+    background: #E5E7EB;
+    color: #6B7280;
+    border: 3px solid white;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.progress-step.active .step-icon {
+    background: linear-gradient(135deg, #E91E63 0%, #C2185B 100%);
+    color: white;
+    transform: scale(1.1);
+    box-shadow: 0 4px 15px rgba(233, 30, 99, 0.3);
+}
+
+.progress-step.completed .step-icon {
+    background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+    color: white;
+    box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+}
+
+.step-info {
+    text-align: center;
+}
+
+.step-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: #374151;
+    margin-bottom: 4px;
+}
+
+.step-number {
+    font-size: 12px;
+    color: #6B7280;
+}
+
+.progress-step.active .step-title {
+    color: #E91E63;
+}
+
+.progress-step.completed .step-title {
+    color: #10B981;
+}
+
+.progress-step.locked {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.progress-step.locked .step-icon {
+    background: #F3F4F6;
+    color: #9CA3AF;
+    border-color: #E5E7EB;
+}
+
+.progress-step.locked .step-title {
+    color: #9CA3AF;
+}
+
+.progress-step.locked .step-number {
+    color: #9CA3AF;
+}
+
 .booking-form {
     display: flex;
     flex-direction: column;
@@ -36,9 +148,19 @@
 
 .form-section {
     background: #F9FAFB;
-    padding: 25px;
+    padding: 30px;
     border-radius: 12px;
     border: 1px solid #E5E7EB;
+    min-height: 400px;
+}
+
+.step-content {
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
 }
 
 .form-section h3 {
@@ -94,6 +216,93 @@
 .form-group textarea {
     resize: vertical;
     min-height: 100px;
+}
+
+/* Error Messages */
+.error-message {
+    color: #EF4444;
+    font-size: 12px;
+    margin-top: 4px;
+    display: block;
+}
+
+.form-group input.error,
+.form-group select.error,
+.form-group textarea.error {
+    border-color: #EF4444;
+    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+}
+
+/* Navigation Buttons */
+.form-navigation {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 1px solid #E5E7EB;
+}
+
+.nav-button {
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+    min-width: 120px;
+}
+
+.prev-button {
+    background: #F3F4F6;
+    color: #374151;
+    border-color: #D1D5DB;
+}
+
+.prev-button:hover {
+    background: #E5E7EB;
+    transform: translateY(-1px);
+}
+
+.next-button {
+    background: linear-gradient(135deg, #E91E63 0%, #C2185B 100%);
+    color: white;
+    border-color: #E91E63;
+    box-shadow: 0 4px 15px rgba(233, 30, 99, 0.3);
+}
+
+.next-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(233, 30, 99, 0.4);
+}
+
+/* Review Summary */
+.review-summary {
+    display: grid;
+    gap: 20px;
+}
+
+.review-section {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    border: 1px solid #E5E7EB;
+}
+
+.review-section h4 {
+    font-size: 16px;
+    font-weight: 600;
+    color: #1F2937;
+    margin-bottom: 12px;
+    border-bottom: 2px solid #E91E63;
+    padding-bottom: 8px;
+}
+
+.review-section p {
+    margin: 8px 0;
+    color: #374151;
+    line-height: 1.5;
 }
 
 /* Service Selection Grid */
@@ -219,6 +428,46 @@
         font-size: 24px;
     }
     
+    .progress-indicator {
+        flex-direction: column;
+        gap: 15px;
+        align-items: center;
+    }
+    
+    .progress-indicator::before {
+        display: none;
+    }
+    
+    .progress-step {
+        flex-direction: row;
+        width: 100%;
+        max-width: 300px;
+        padding: 15px;
+        border: 1px solid #E5E7EB;
+        border-radius: 8px;
+    }
+    
+    .step-icon {
+        width: 40px;
+        height: 40px;
+        font-size: 16px;
+        margin-bottom: 0;
+        margin-right: 12px;
+    }
+    
+    .step-info {
+        text-align: left;
+    }
+    
+    .step-title {
+        font-size: 16px;
+        margin-bottom: 2px;
+    }
+    
+    .step-number {
+        font-size: 14px;
+    }
+    
     .form-row {
         grid-template-columns: 1fr;
         gap: 15px;
@@ -230,6 +479,17 @@
     
     .service-option {
         padding: 15px;
+    }
+    
+    .form-navigation {
+        flex-direction: column;
+        gap: 15px;
+    }
+    
+    .nav-button {
+        width: 100%;
+        padding: 14px 20px;
+        font-size: 16px;
     }
     
     .submit-button {

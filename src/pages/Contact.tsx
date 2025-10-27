@@ -97,29 +97,7 @@ export default function Contact() {
                 </div>
             </div>
 
-            {/* Special Offers Section */}
-            <div className="special-offers">
-                <div className="offers-content">
-                    <h3>Special Offers</h3>
-                    <div className="offers-grid">
-                        <div className="offer-card">
-                            <div className="offer-icon">🎁</div>
-                            <h4>First Time Guest</h4>
-                            <p>20% off your first massage treatment</p>
-                        </div>
-                        <div className="offer-card">
-                            <div className="offer-icon">💆‍♀️</div>
-                            <h4>Wellness Package</h4>
-                            <p>Save 15% when you book 3+ services</p>
-                        </div>
-                        <div className="offer-card">
-                            <div className="offer-icon">👥</div>
-                            <h4>Couples Special</h4>
-                            <p>Book together and save 10% each</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
+           
         </div>
     )
 }
