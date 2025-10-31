@@ -13,8 +13,15 @@ export default function Contact() {
                             <h3>Visit Our Spa</h3>
                         </div>
                         <div className="info-content">
-                            <p>15147 Ventura Blvd<br />
-                            Sherman Oaks, CA 91403</p>
+                            <a 
+                                href="https://www.google.com/maps/search/?api=1&query=15147+Ventura+Blvd+Sherman+Oaks+CA+91403" 
+                                target="_blank" 
+                                rel="noopener noreferrer" 
+                                className="address-link"
+                            >
+                                <p>15147 Ventura Blvd<br />
+                                Sherman Oaks, CA 91403</p>
+                            </a>
                         </div>
                     </div>
 
@@ -24,7 +31,9 @@ export default function Contact() {
                             <h3>Call or Text Us</h3>
                         </div>
                         <div className="info-content">
-                            <p>(818) 379-7079</p>
+                            <a href="tel:+18183797079" className="phone-link">
+                                <p>(818) 379-7079</p>
+                            </a>
                         </div>
                     </div>
 
