@@ -7,10 +7,6 @@ export default function Booking() {
             {/* Hero Section */}
             <section className="booking-hero">
                 <div className="booking-hero-content">
-                    {/* <div className="wellbeing-badge">
-                        <span className="leaf-icon">🌿</span>
-                        <span className="badge-text">Book Your Appointment</span>
-                    </div> */}
                     <h1 className="main-heading">Schedule Your Massage</h1>
                     <p className="description">
                         Book your relaxing massage session with our professional therapists. 
