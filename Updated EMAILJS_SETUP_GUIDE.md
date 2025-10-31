@@ -16,8 +16,11 @@ This guide will help you set up EmailJS to send automated emails to clients, the
 5. Note down your **Service ID**
 
 ## Step 3: Create Email Templates
-Create three email templates in EmailJS:
+Create **two** email templates in EmailJS:
 
+
+
+-----------------------------------------------------------------
 ### Client Confirmation Template
 - **Template ID**: `client_template`
 - **Subject**: `Appointment Confirmation - {{service_type}}`
@@ -25,81 +28,98 @@ Create three email templates in EmailJS:
 ```
 Dear {{client_name}},
 
-Your massage appointment has been confirmed!
+Thank you for booking with Linda Lue's Massage & Spa! We're excited to provide you with a rejuvenating experience.
 
-Appointment Details:
-- Service: {{service_type}}
-- Price: {{service_price}}
-- Date: {{appointment_date}}
-- Time: {{appointment_time}}
-- Therapist: {{therapist_name}}
+📋 APPOINTMENT CONFIRMATION
 
-Special Requests: {{special_requests}}
-
-📅 Add to Google Calendar: {{calendar_link}}
-
-We look forward to seeing you!
-
-Best regards,
-Linda Lue's Massage & Spa
-```
-
-### Therapist Notification Template
-- **Template ID**: `therapist_template`
-- **Subject**: `New Appointment - {{client_name}}`
-- **Content**:
-```
-Hello {{therapist_name}},
-
-You have a new appointment scheduled:
-
-Client Details:
-- Name: {{client_name}}
-- Email: {{client_email}}
-- Phone: {{client_phone}}
-
-Appointment Details:
-- Service: {{service_type}}
-- Price: {{service_price}}
-- Date: {{appointment_date}}
-- Time: {{appointment_time}}
-
-Special Requests: {{special_requests}}
-
-📅 Add to Google Calendar: {{calendar_link}}
-
-Please confirm your availability.
-
-Best regards,
-Linda Lue's Massage & Spa
-```
-
-### Shop Notification Template
-- **Template ID**: `shop_template`
-- **Subject**: `New Booking - {{client_name}}`
-- **Content**:
-```
-New booking received:
-
-Client: {{client_name}}
-Email: {{client_email}}
-Phone: {{client_phone}}
-
-Service: {{service_type}} - {{service_price}}
-Date: {{appointment_date}} at {{appointment_time}}
+Service: {{service_type}}
+Price: {{service_price}}
+Date: {{appointment_date}}
+Time: {{appointment_time}}
 Therapist: {{therapist_name}}
 
 Special Requests: {{special_requests}}
 
-📅 Add to Google Calendar: {{calendar_link}}
+📅 Add to Your Calendar:
+{{calendar_link}}
 
-Booking confirmed and emails sent to client and therapist.
+📍 LOCATION & ARRIVAL
+Please arrive 10 minutes early to allow time for check-in and consultation. Our team will ensure you have a relaxing and comfortable experience.
+
+💡 PREPARATION TIPS
+- Drink plenty of water before and after your session
+- Wear comfortable clothing
+- Let us know if you have any concerns or questions before your appointment
+
+If you need to reschedule or have any questions, please contact us as soon as possible. We look forward to serving you!
+
+Warm regards,
+Linda Lue's Massage & Spa
+[Your Phone Number]
+[Your Address]
 ```
+
+
+-----------------------------------------------------------------
+
+### Staff Notification Template (Therapist + Shop)
+- **Template ID**: `staff_template`
+- **Subject**: `New Appointment: {{client_name}} - {{appointment_date}} {{appointment_time}}`
+- **Right Panel Settings:**
+  - **To Email**: `{{to_email}}` (this will be the therapist's email)
+  - **Cc**: `{{cc_email}}` (this will be the shop's email - therapist will see shop receives a copy)
+- **Content**:
+```
+📥 NEW BOOKING RECEIVED
+
+A new appointment has been booked through the online booking system.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+👤 CLIENT INFORMATION
+Name: {{client_name}}
+Email: {{client_email}}
+Phone: {{client_phone}}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+📅 APPOINTMENT DETAILS
+Date: {{appointment_date}}
+Time: {{appointment_time}}
+Service: {{service_type}}
+Price: {{service_price}}
+Assigned Therapist: {{therapist_name}}
+
+📝 CLIENT REQUESTS:
+{{special_requests}}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+📅 Add to Your Calendar:
+{{calendar_link}}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+✅ ACTION REQUIRED (Therapist)
+Please confirm that this appointment time works for your schedule. If you need to request any changes or have concerns, please contact the shop immediately.
+
+✅ ACTION REQUIRED (Shop)
+Please update your booking system and prepare for this appointment.
+
+---
+Linda Lue's Massage & Spa
+Automated Booking System
+```
+
+
+-----------------------------------------------------------------
+
+
 
 ## Step 4: Get Your Public Key
 1. In EmailJS dashboard, go to "Account" → "General"
 2. Copy your **Public Key**
-
+-----------------------------------------------------------------
 ## Step 5: Update Configuration
 Update the following files with your EmailJS credentials:
 
@@ -115,13 +135,15 @@ shop_email: 'your-shop-email@domain.com',
 therapist_email: 'therapist-email@domain.com'
 ```
 
+-----------------------------------------------------------------
+
 ## Step 6: Test the Integration
 1. Fill out the booking form
 2. Submit the appointment
 3. Check that emails are sent to:
-   - Client (confirmation with calendar link)
-   - Therapist (appointment details)
-   - Shop (booking notification)
+   - **Client** (confirmation email with calendar link)
+   - **Therapist** (receives email directly)
+   - **Shop** (receives copy via Cc - visible to therapist)
 
 ## Google Calendar Integration
 The system automatically generates Google Calendar links that allow users to:

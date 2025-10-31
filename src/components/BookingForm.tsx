@@ -1,5 +1,6 @@
 import { useState } from 'react'
-// import { sendBookingEmails, generateGoogleCalendarLink, BookingEmailData } from '../services/emailService'
+import { sendBookingEmails, generateGoogleCalendarLink } from '../services/emailService'
+import type { BookingEmailData } from '../services/emailService'
 import './BookingForm.css'
 
 interface BookingData {
@@ -32,6 +33,7 @@ export default function BookingForm() {
 
     const [isSubmitting, setIsSubmitting] = useState(false)
     const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle')
+    const [errorMessage, setErrorMessage] = useState<string>('')
 
     const services = [
         { name: '30 Minutes Swedish Massage', price: '$45.00', duration: '30' },
@@ -94,20 +96,52 @@ export default function BookingForm() {
         }
     }
 
-    const sendEmails = async (bookingData: BookingData) => {
-        console.log('Booking data:', bookingData)
-        return true
+    const sendEmails = async (bookingData: BookingData): Promise<{ success: boolean; error?: string }> => {
+        try {
+            // Convert BookingData to BookingEmailData format
+            const emailData: BookingEmailData = {
+                client_name: bookingData.clientName,
+                client_email: bookingData.clientEmail,
+                client_phone: bookingData.clientPhone,
+                service_type: bookingData.serviceType,
+                service_price: bookingData.servicePrice,
+                appointment_date: bookingData.appointmentDate,
+                appointment_time: bookingData.appointmentTime,
+                therapist_name: bookingData.therapistName,
+                special_requests: bookingData.specialRequests,
+                calendar_link: generateGoogleCalendarLink(
+                    bookingData.appointmentDate,
+                    bookingData.appointmentTime,
+                    bookingData.serviceType,
+                    services.find(s => s.name === bookingData.serviceType)?.duration || '60'
+                ),
+                shop_email: 'lindaluesmassage9@gmail.com', // Update with actual shop email
+                therapist_email: 'therapist@lindaluesmassage.com' // Update with actual therapist email
+            }
+
+            const result = await sendBookingEmails(emailData)
+            return result
+        } catch (error) {
+            console.error('Error sending emails:', error)
+            const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred'
+            return {
+                success: false,
+                error: `Failed to process booking: ${errorMessage}`
+            }
+        }
     }
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
         setIsSubmitting(true)
         setSubmitStatus('idle')
+        setErrorMessage('')
 
         try {
-            const success = await sendEmails(bookingData)
-            if (success) {
+            const result = await sendEmails(bookingData)
+            if (result.success) {
                 setSubmitStatus('success')
+                setErrorMessage('')
                 setBookingData({
                     clientName: '',
                     clientEmail: '',
@@ -122,10 +156,13 @@ export default function BookingForm() {
                 setCurrentStep('personal')
             } else {
                 setSubmitStatus('error')
+                setErrorMessage(result.error || 'An unknown error occurred. Please try again.')
             }
         } catch (error) {
             console.error('Booking error:', error)
             setSubmitStatus('error')
+            const errorMsg = error instanceof Error ? error.message : 'An unexpected error occurred. Please try again.'
+            setErrorMessage(errorMsg)
         } finally {
             setIsSubmitting(false)
         }
@@ -373,7 +410,15 @@ export default function BookingForm() {
                 {submitStatus === 'error' && (
                     <div className="status-message error">
                         <h4>❌ Booking Failed</h4>
-                        <p>There was an error booking your appointment. Please try again or contact us directly.</p>
+                        <p>{errorMessage || 'There was an error booking your appointment. Please try again or contact us directly.'}</p>
+                        {errorMessage && (
+                            <details style={{ marginTop: '10px', fontSize: '0.9em', opacity: 0.8 }}>
+                                <summary style={{ cursor: 'pointer' }}>Technical Details (Click to expand)</summary>
+                                <pre style={{ marginTop: '5px', padding: '10px', backgroundColor: 'rgba(0,0,0,0.1)', borderRadius: '4px', overflow: 'auto' }}>
+                                    {errorMessage}
+                                </pre>
+                            </details>
+                        )}
                     </div>
                 )}
             </form>
