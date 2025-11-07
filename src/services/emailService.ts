@@ -43,9 +43,14 @@ export const sendBookingEmails = async (bookingData: BookingEmailData): Promise<
                 STAFF_TEMPLATE: STAFF_TEMPLATE_ID ? '✓' : '✗'
             })
             
+            const isProduction = window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1'
+            const errorMessage = isProduction
+                ? `Missing EmailJS configuration. Please set environment variables in your hosting platform settings. Missing: ${missing.join(', ')}. See DEPLOYMENT_ENV_VARIABLES.md for instructions.`
+                : `Missing EmailJS configuration. Please check your .env.local file. Missing: ${missing.join(', ')}`
+            
             return {
                 success: false,
-                error: `Missing EmailJS configuration. Please check your .env.local file. Missing: ${missing.join(', ')}`
+                error: errorMessage
             }
         }
 
