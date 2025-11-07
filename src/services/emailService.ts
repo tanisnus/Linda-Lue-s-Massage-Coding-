@@ -150,29 +150,62 @@ export const sendBookingEmails = async (bookingData: BookingEmailData): Promise<
     }
 }
 
+// Convert 12-hour time format (e.g., "10:00 AM") to 24-hour format (e.g., "10:00")
+const convertTo24Hour = (time12h: string): string => {
+    const [time, modifier] = time12h.split(' ')
+    const [hoursStr, minutes] = time.split(':')
+    let hours = hoursStr
+    
+    if (hours === '12') {
+        hours = modifier === 'AM' ? '00' : '12'
+    } else if (modifier === 'PM') {
+        hours = String(parseInt(hours, 10) + 12)
+    }
+    
+    return `${hours.padStart(2, '0')}:${minutes}`
+}
+
 export const generateGoogleCalendarLink = (
     appointmentDate: string,
     appointmentTime: string,
     serviceType: string,
     duration: string
 ): string => {
-    const startDate = new Date(`${appointmentDate}T${appointmentTime}`)
-    const endDate = new Date(startDate.getTime() + parseInt(duration) * 60000)
-    
-    const formatDate = (date: Date): string => {
-        return date.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z'
+    try {
+        // Convert 12-hour time to 24-hour format
+        const time24h = convertTo24Hour(appointmentTime)
+        const startDate = new Date(`${appointmentDate}T${time24h}`)
+        
+        // Validate the date
+        if (isNaN(startDate.getTime())) {
+            throw new Error(`Invalid time value: ${appointmentTime}. Please select a valid time.`)
+        }
+        
+        const endDate = new Date(startDate.getTime() + parseInt(duration) * 60000)
+        
+        // Validate the end date
+        if (isNaN(endDate.getTime())) {
+            throw new Error(`Invalid duration or time calculation.`)
+        }
+        
+        const formatDate = (date: Date): string => {
+            return date.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z'
+        }
+
+        const details = `Massage Appointment: ${serviceType}`
+        const location = 'Linda Lue\'s Massage & Spa'
+        
+        const params = new URLSearchParams({
+            action: 'TEMPLATE',
+            text: details,
+            dates: `${formatDate(startDate)}/${formatDate(endDate)}`,
+            details: `Service: ${serviceType}\nDuration: ${duration} minutes\nLocation: ${location}\n\nClick "Yes" to add to your Google Calendar!`,
+            location: location
+        })
+
+        return `https://calendar.google.com/calendar/render?${params.toString()}`
+    } catch (error) {
+        console.error('Error generating calendar link:', error)
+        throw error
     }
-
-    const details = `Massage Appointment: ${serviceType}`
-    const location = 'Linda Lue\'s Massage & Spa'
-    
-    const params = new URLSearchParams({
-        action: 'TEMPLATE',
-        text: details,
-        dates: `${formatDate(startDate)}/${formatDate(endDate)}`,
-        details: `Service: ${serviceType}\nDuration: ${duration} minutes\nLocation: ${location}\n\nClick "Yes" to add to your Google Calendar!`,
-        location: location
-    })
-
-    return `https://calendar.google.com/calendar/render?${params.toString()}`
 }

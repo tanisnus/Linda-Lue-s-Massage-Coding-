@@ -34,6 +34,8 @@ export default function BookingForm() {
     const [isSubmitting, setIsSubmitting] = useState(false)
     const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle')
     const [errorMessage, setErrorMessage] = useState<string>('')
+    const [stepErrors, setStepErrors] = useState<{ [key: string]: string }>({})
+    const [fieldErrors, setFieldErrors] = useState<{ [key: string]: string }>({})
 
     const services = [
         { name: '30 Minutes Swedish Massage', price: '$45.00', duration: '30' },
@@ -54,22 +56,22 @@ export default function BookingForm() {
         
         // Define therapists by day of week
         const therapistsByDay: { [key: number]: string[] } = {
-            0: ['Linda Lue', 'Sarah Johnson'], // Sunday
-            1: ['Linda Lue', 'Michael Chen'], // Monday
-            2: ['Sarah Johnson', 'Emma Wilson'], // Tuesday
-            3: ['Linda Lue', 'Michael Chen', 'Emma Wilson'], // Wednesday
-            4: ['Sarah Johnson', 'Michael Chen'], // Thursday
-            5: ['Linda Lue', 'Sarah Johnson', 'Michael Chen'], // Friday
-            6: ['Linda Lue', 'Emma Wilson'] // Saturday
+            0: ['Tina', 'Saifon', 'Nat', 'Dodo'], // Sunday
+            1: ['Pukey', 'Saifon', 'Nat'], // Monday
+            2: ['Sandy', 'Emily', 'Saifon', 'Nat'], // Tuesday
+            3: ['Sandy', 'Omi', 'JJ'], // Wednesday
+            4: ['Sandy', 'Winnie', 'Wanda'], // Thursday
+            5: ['Sandy', 'Pukey', 'Saifon', 'Nat'], // Friday
+            6: ['Pukey', 'Saifon', 'Nat'] // Saturday
         }
         
         return therapistsByDay[dayOfWeek] || []
     }
 
     const timeSlots = [
-        '9:00 AM', '10:00 AM', '11:00 AM', '12:00 PM',
+        '10:00 AM', '11:00 AM', '12:00 PM',
         '1:00 PM', '2:00 PM', '3:00 PM', '4:00 PM',
-        '5:00 PM', '6:00 PM', '7:00 PM'
+        '5:00 PM', '6:00 PM', '7:00 PM', '8:00 PM', '9:00 PM'
     ]
 
     const steps = [
@@ -82,6 +84,49 @@ export default function BookingForm() {
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target
+        
+        // Clear step errors when user makes changes
+        if (stepErrors[currentStep]) {
+            setStepErrors(prev => {
+                const newErrors = { ...prev }
+                delete newErrors[currentStep]
+                return newErrors
+            })
+        }
+        
+        // Validate fields in real-time for personal info step
+        if (currentStep === 'personal') {
+            if (name === 'clientName') {
+                const nameError = value.trim() === '' ? 'Please enter your full name' : ''
+                setFieldErrors(prev => ({
+                    ...prev,
+                    clientName: nameError
+                }))
+            } else if (name === 'clientEmail') {
+                const emailError = value.trim() === '' 
+                    ? 'Please enter your email address' 
+                    : validateEmail(value) || ''
+                setFieldErrors(prev => ({
+                    ...prev,
+                    clientEmail: emailError
+                }))
+            } else if (name === 'clientPhone') {
+                const phoneError = value.trim() === '' ? 'Please enter your phone number' : ''
+                setFieldErrors(prev => ({
+                    ...prev,
+                    clientPhone: phoneError
+                }))
+            }
+        } else {
+            // Clear field error when user changes other fields
+            if (fieldErrors[name]) {
+                setFieldErrors(prev => {
+                    const newErrors = { ...prev }
+                    delete newErrors[name]
+                    return newErrors
+                })
+            }
+        }
         
         // If date changes, reset therapist selection (since therapists vary by day)
         if (name === 'appointmentDate') {
@@ -98,6 +143,34 @@ export default function BookingForm() {
         }
     }
 
+    const handleFieldBlur = (e: React.FocusEvent<HTMLInputElement>) => {
+        const { name, value } = e.target
+        
+        if (currentStep === 'personal') {
+            if (name === 'clientName') {
+                const nameError = value.trim() === '' ? 'Please enter your full name' : ''
+                setFieldErrors(prev => ({
+                    ...prev,
+                    clientName: nameError
+                }))
+            } else if (name === 'clientEmail') {
+                const emailError = value.trim() === '' 
+                    ? 'Please enter your email address' 
+                    : validateEmail(value) || ''
+                setFieldErrors(prev => ({
+                    ...prev,
+                    clientEmail: emailError
+                }))
+            } else if (name === 'clientPhone') {
+                const phoneError = value.trim() === '' ? 'Please enter your phone number' : ''
+                setFieldErrors(prev => ({
+                    ...prev,
+                    clientPhone: phoneError
+                }))
+            }
+        }
+    }
+
     const handleServiceSelect = (service: { name: string; price: string; duration: string }) => {
         setBookingData(prev => ({
             ...prev,
@@ -108,10 +181,12 @@ export default function BookingForm() {
 
     const validateCurrentStep = (): boolean => {
         switch (currentStep) {
-            case 'personal':
+            case 'personal': {
+                const emailValid = !fieldErrors.clientEmail && bookingData.clientEmail.trim() !== ''
                 return bookingData.clientName.trim() !== '' &&
-                       bookingData.clientEmail.trim() !== '' &&
+                       emailValid &&
                        bookingData.clientPhone.trim() !== ''
+            }
             case 'service':
                 return bookingData.serviceType !== ''
             case 'appointment':
@@ -129,11 +204,125 @@ export default function BookingForm() {
         }
     }
 
+    const validateEmail = (email: string): string | null => {
+        if (!email) return null // Empty email is handled by required validation
+        
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+        
+        // Check for common invalid patterns
+        if (email.includes('@') && !email.includes('@gmail.com') && !email.includes('@yahoo.com') && !email.includes('@hotmail.com') && !email.includes('@outlook.com')) {
+            // Allow other domains, just check basic format
+        }
+        
+        if (!emailRegex.test(email)) {
+            if (email.includes('@') && !email.includes('.')) {
+                return 'Email must include a domain (e.g., @gmail.com)'
+            }
+            if (email.startsWith('@')) {
+                return 'Email cannot start with @'
+            }
+            if (email.includes('@') && email.split('@').length > 2) {
+                return 'Email can only contain one @ symbol'
+            }
+            if (!email.includes('@')) {
+                return 'Email must include @ symbol'
+            }
+            return 'Please enter a valid email address (e.g., name@gmail.com)'
+        }
+        
+        return null // Valid email
+    }
+
+    const validateTimeFormat = (time: string, date: string): string | null => {
+        if (!time || !date) return null
+        
+        try {
+            // Test if we can generate a valid calendar link
+            generateGoogleCalendarLink(date, time, 'Test Service', '60')
+            return null // No error
+        } catch (error) {
+            return error instanceof Error ? error.message : 'Invalid time format'
+        }
+    }
+
+    const validatePersonalInfoFields = () => {
+        const errors: { [key: string]: string } = {}
+        
+        if (!bookingData.clientName.trim()) {
+            errors.clientName = 'Please enter your full name'
+        }
+        
+        if (!bookingData.clientEmail.trim()) {
+            errors.clientEmail = 'Please enter your email address'
+        } else {
+            const emailError = validateEmail(bookingData.clientEmail)
+            if (emailError) {
+                errors.clientEmail = emailError
+            }
+        }
+        
+        if (!bookingData.clientPhone.trim()) {
+            errors.clientPhone = 'Please enter your phone number'
+        }
+        
+        return errors
+    }
+
     const nextStep = () => {
+        // Clear previous step errors
+        setStepErrors({})
+        
+        // Validate personal info fields and show errors
+        if (currentStep === 'personal') {
+            const personalErrors = validatePersonalInfoFields()
+            if (Object.keys(personalErrors).length > 0) {
+                setFieldErrors(prev => ({ ...prev, ...personalErrors }))
+                return
+            }
+        }
+        
         if (!validateCurrentStep()) {
-            // Show validation message or prevent navigation
+            // Show validation message based on current step
+            let errorMsg = ''
+            switch (currentStep) {
+                case 'personal':
+                    errorMsg = 'Please fill in all required fields correctly'
+                    break
+                case 'service':
+                    errorMsg = 'Please select a service'
+                    break
+                case 'appointment':
+                    if (!bookingData.appointmentDate) {
+                        errorMsg = 'Please select a date'
+                    } else if (!bookingData.appointmentTime) {
+                        errorMsg = 'Please select a time'
+                    } else if (!bookingData.therapistName) {
+                        errorMsg = 'Please select a therapist'
+                    } else {
+                        // Validate time format
+                        const timeError = validateTimeFormat(bookingData.appointmentTime, bookingData.appointmentDate)
+                        if (timeError) {
+                            errorMsg = timeError
+                        }
+                    }
+                    break
+            }
+            
+            if (errorMsg) {
+                setStepErrors({ [currentStep]: errorMsg })
+            }
             return
         }
+        
+        // Additional validation for appointment step
+        if (currentStep === 'appointment') {
+            const timeError = validateTimeFormat(bookingData.appointmentTime, bookingData.appointmentDate)
+            if (timeError) {
+                setStepErrors({ appointment: timeError })
+                return
+            }
+        }
+        
         const stepIndex = steps.findIndex(step => step.id === currentStep)
         if (stepIndex < steps.length - 1) {
             setCurrentStep(steps[stepIndex + 1].id as FormStep)
@@ -149,6 +338,31 @@ export default function BookingForm() {
 
     const sendEmails = async (bookingData: BookingData): Promise<{ success: boolean; error?: string }> => {
         try {
+            // Validate time before generating calendar link
+            if (!bookingData.appointmentTime || !bookingData.appointmentDate) {
+                return {
+                    success: false,
+                    error: 'Please select both date and time for your appointment.'
+                }
+            }
+
+            // Generate calendar link with error handling
+            let calendarLink = ''
+            try {
+                calendarLink = generateGoogleCalendarLink(
+                    bookingData.appointmentDate,
+                    bookingData.appointmentTime,
+                    bookingData.serviceType,
+                    services.find(s => s.name === bookingData.serviceType)?.duration || '60'
+                )
+            } catch (calendarError) {
+                const calendarErrorMessage = calendarError instanceof Error ? calendarError.message : 'Invalid time value'
+                return {
+                    success: false,
+                    error: `Invalid appointment time: ${calendarErrorMessage}`
+                }
+            }
+
             // Convert BookingData to BookingEmailData format
             const emailData: BookingEmailData = {
                 client_name: bookingData.clientName,
@@ -160,12 +374,7 @@ export default function BookingForm() {
                 appointment_time: bookingData.appointmentTime,
                 therapist_name: bookingData.therapistName,
                 special_requests: bookingData.specialRequests,
-                calendar_link: generateGoogleCalendarLink(
-                    bookingData.appointmentDate,
-                    bookingData.appointmentTime,
-                    bookingData.serviceType,
-                    services.find(s => s.name === bookingData.serviceType)?.duration || '60'
-                ),
+                calendar_link: calendarLink,
                 shop_email: 'lindaluesmassage9@gmail.com', // Update with actual shop email
                 therapist_email: 'therapist@lindaluesmassage.com' // Update with actual therapist email
             }
@@ -234,8 +443,15 @@ export default function BookingForm() {
                                     name="clientName"
                                     value={bookingData.clientName}
                                     onChange={handleInputChange}
+                                    onBlur={handleFieldBlur}
                                     required
+                                    className={fieldErrors.clientName ? 'error-input' : ''}
                                 />
+                                {fieldErrors.clientName && (
+                                    <p style={{ fontSize: '12px', color: '#DC2626', marginTop: '4px' }}>
+                                        ⚠️ {fieldErrors.clientName}
+                                    </p>
+                                )}
                             </div>
                             <div className="form-group">
                                 <label htmlFor="clientEmail">Email Address *</label>
@@ -245,8 +461,15 @@ export default function BookingForm() {
                                     name="clientEmail"
                                     value={bookingData.clientEmail}
                                     onChange={handleInputChange}
+                                    onBlur={handleFieldBlur}
                                     required
+                                    className={fieldErrors.clientEmail ? 'error-input' : ''}
                                 />
+                                {fieldErrors.clientEmail && (
+                                    <p style={{ fontSize: '12px', color: '#DC2626', marginTop: '4px' }}>
+                                        ⚠️ {fieldErrors.clientEmail}
+                                    </p>
+                                )}
                             </div>
                         </div>
                         <div className="form-row">
@@ -258,8 +481,15 @@ export default function BookingForm() {
                                     name="clientPhone"
                                     value={bookingData.clientPhone}
                                     onChange={handleInputChange}
+                                    onBlur={handleFieldBlur}
                                     required
+                                    className={fieldErrors.clientPhone ? 'error-input' : ''}
                                 />
+                                {fieldErrors.clientPhone && (
+                                    <p style={{ fontSize: '12px', color: '#DC2626', marginTop: '4px' }}>
+                                        ⚠️ {fieldErrors.clientPhone}
+                                    </p>
+                                )}
                             </div>
                         </div>
                     </div>
@@ -327,6 +557,11 @@ export default function BookingForm() {
                                         <option key={time} value={time}>{time}</option>
                                     ))}
                                 </select>
+                                {stepErrors.appointment && (
+                                    <p style={{ fontSize: '12px', color: '#DC2626', marginTop: '4px' }}>
+                                        ⚠️ {stepErrors.appointment}
+                                    </p>
+                                )}
                             </div>
                         </div>
                         {bookingData.appointmentDate && (
