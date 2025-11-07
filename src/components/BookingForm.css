@@ -228,7 +228,10 @@
 
 .form-group input.error,
 .form-group select.error,
-.form-group textarea.error {
+.form-group textarea.error,
+.form-group input.error-input,
+.form-group select.error-input,
+.form-group textarea.error-input {
     border-color: #EF4444;
     box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
 }
