@@ -2,6 +2,7 @@
 
 import './Service.css'
 import { Link } from 'react-router-dom'
+import PageMeta from '../components/PageMeta'
 import spaPictureFirst from '../images/picture_one.jpg'
 import spaPictureSecond from '../images/picture_two.jpg'
 import spaPictureThird from '../images/picture_three.jpg'
@@ -11,6 +12,11 @@ import spaPictureFifth from '../images/picture_five.jpg'
 export default function Service() {
     return (
         <div className="service-container">
+            <PageMeta
+                title="Services"
+                description="Swedish, deep tissue, prenatal, and couple massage in Sherman Oaks. View pricing and book your session at Linda Lue's Massage."
+                path="/service"
+            />
             {/* Hero Section */}
             <section className="service-hero">
                 <div className="hero-content">
