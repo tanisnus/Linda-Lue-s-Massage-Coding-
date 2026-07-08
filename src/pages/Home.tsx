@@ -1,11 +1,17 @@
 import './Home.css'
 import { Link } from 'react-router-dom'
+import PageMeta from '../components/PageMeta'
 // import SpaPictureTwo from '../images/picture_two.jpg'
 import SpaPictureOne from '../images/picture_one.jpg'
 
 export default function Home() {
     return (
         <div className="home-container">
+            <PageMeta
+                title="Linda Lue's Massage"
+                description="Linda Lue's Massage offers Thai, Swedish, deep tissue, and hot stone massage in Sherman Oaks, CA. Licensed male and female therapists. Walk-ins welcome. Book online today."
+                path="/"
+            />
             {/* Hero Banner Section */}
             <section className="hero-banner">
                 {/* Sliding Background Image */}

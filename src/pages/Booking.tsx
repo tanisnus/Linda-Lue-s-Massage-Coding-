@@ -1,9 +1,15 @@
 import BookingForm from '../components/BookingForm'
+import PageMeta from '../components/PageMeta'
 import './Booking.css'
 
 export default function Booking() {
     return (
         <div className="booking-page-container">
+            <PageMeta
+                title="Book Online"
+                description="Schedule your massage online at Linda Lue's Massage in Sherman Oaks. Choose your service, pick a time, and confirm your appointment."
+                path="/booking"
+            />
             {/* Hero Section */}
             <section className="booking-hero">
                 <div className="booking-hero-content">

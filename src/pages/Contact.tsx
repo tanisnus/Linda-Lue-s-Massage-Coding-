@@ -1,9 +1,15 @@
 import './Contact.css'
+import PageMeta from '../components/PageMeta'
 
 export default function Contact() {
 
     return (
         <div className="contact-container">
+            <PageMeta
+                title="Contact"
+                description="Visit Linda Lue's Massage at 15147 Ventura Blvd, Sherman Oaks, CA 91403. Call or message us for hours, directions, and appointments."
+                path="/contact"
+            />
             <div className="contact-main">
                 <h1 className="contact-title">Contact Information</h1>
                 <div className="contact-info-section">
