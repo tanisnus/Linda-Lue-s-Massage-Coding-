@@ -3,7 +3,7 @@ import {
   clientConfirmationEmail,
   staffNotificationEmail,
   type BookingPayload,
-} from '../emails/templates'
+} from './templates'
 
 export type BookingResult =
   | { success: true }
