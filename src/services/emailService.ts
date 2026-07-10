@@ -26,7 +26,17 @@ export const sendBookingEmails = async (bookingData: BookingEmailData): Promise<
             body: JSON.stringify(bookingData),
         })
 
-        const result = await response.json() as { success: boolean; error?: string }
+        const responseText = await response.text()
+        let result: { success: boolean; error?: string }
+
+        try {
+            result = JSON.parse(responseText) as { success: boolean; error?: string }
+        } catch {
+            return {
+                success: false,
+                error: responseText || `Failed to send booking emails (status ${response.status})`
+            }
+        }
 
         if (!response.ok || !result.success) {
             return {
