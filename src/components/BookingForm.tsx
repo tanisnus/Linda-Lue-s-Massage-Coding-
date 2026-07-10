@@ -375,8 +375,6 @@ export default function BookingForm() {
                 therapist_name: bookingData.therapistName,
                 special_requests: bookingData.specialRequests,
                 calendar_link: calendarLink,
-                shop_email: 'lindaluesmassage9@gmail.com', // Update with actual shop email
-                therapist_email: 'therapist@lindaluesmassage.com' // Update with actual therapist email
             }
 
             const result = await sendBookingEmails(emailData)
