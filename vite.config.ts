@@ -36,7 +36,7 @@ function bookingApiDevPlugin(env: Record<string, string>): Plugin {
         }
 
         try {
-          const { processBooking } = await import('./api/processBooking')
+          const { processBooking } = await import('./api/processBooking.js')
           const body = await readRequestBody(req)
           const parsed = body ? JSON.parse(body) : null
           const result = await processBooking(parsed)
