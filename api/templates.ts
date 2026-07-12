@@ -9,6 +9,7 @@ export interface BookingPayload {
   therapist_name: string
   special_requests: string
   calendar_link: string
+  duration: string
 }
 
 const spaName = "Linda Lue's Massage & Spa"
