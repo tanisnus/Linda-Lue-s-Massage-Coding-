@@ -10,7 +10,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       }
 
       const result = getCancelPreview(token)
-      if (!result.success) {
+      if (result.success === false) {
         return res.status(result.status).json({ success: false, error: result.error })
       }
 
@@ -36,7 +36,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       }
 
       const result = await processCancelBooking(token)
-      if (!result.success) {
+      if (result.success === false) {
         return res.status(result.status).json({ success: false, error: result.error })
       }
 
