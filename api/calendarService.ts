@@ -10,6 +10,12 @@ export const SHOP_TIME_SLOTS = [
 
 type BusyPeriod = { start: string; end: string }
 
+function getEnv(name: string): string | undefined {
+  const value = process.env[name]?.trim()
+  if (!value) return undefined
+  return value.replace(/^["']|["']$/g, '')
+}
+
 function parsePrivateKey(raw: string | undefined): string | undefined {
   if (!raw) return undefined
 
@@ -20,8 +26,8 @@ function parsePrivateKey(raw: string | undefined): string | undefined {
 }
 
 export function getAuth() {
-  const clientEmail = process.env.GOOGLE_CLIENT_EMAIL?.trim()
-  const privateKey = parsePrivateKey(process.env.GOOGLE_PRIVATE_KEY)
+  const clientEmail = getEnv('GOOGLE_CLIENT_EMAIL')
+  const privateKey = parsePrivateKey(getEnv('GOOGLE_PRIVATE_KEY'))
 
   if (!clientEmail || !privateKey) {
     throw new Error('Missing Google Calendar credentials (GOOGLE_CLIENT_EMAIL or GOOGLE_PRIVATE_KEY)')
@@ -36,14 +42,14 @@ export function getAuth() {
 
 export function isCalendarConfigured(): boolean {
   return Boolean(
-    process.env.GOOGLE_CALENDAR_ID?.trim() &&
-    process.env.GOOGLE_CLIENT_EMAIL?.trim() &&
-    process.env.GOOGLE_PRIVATE_KEY?.trim()
+    getEnv('GOOGLE_CALENDAR_ID') &&
+    getEnv('GOOGLE_CLIENT_EMAIL') &&
+    parsePrivateKey(getEnv('GOOGLE_PRIVATE_KEY'))
   )
 }
 
 function getShopCalendarId(): string {
-  const calendarId = process.env.GOOGLE_CALENDAR_ID?.trim()
+  const calendarId = getEnv('GOOGLE_CALENDAR_ID')
   if (!calendarId) {
     throw new Error('Missing GOOGLE_CALENDAR_ID')
   }
@@ -66,37 +72,73 @@ function overlaps(slotStart: Date, slotEnd: Date, busy: BusyPeriod): boolean {
   return slotStart.getTime() < busyEnd && slotEnd.getTime() > busyStart
 }
 
-export async function getBusyPeriods(date: string): Promise<BusyPeriod[]> {
+function getEventTherapist(description: string | null | undefined): string | null {
+  if (!description) return null
+  const match = description.match(/Therapist:\s*(.+)/i)
+  return match ? match[1].trim() : null
+}
+
+function eventBlocksTherapist(
+  description: string | null | undefined,
+  therapistName: string
+): boolean {
+  const eventTherapist = getEventTherapist(description)
+  if (!eventTherapist) {
+    return true
+  }
+
+  return eventTherapist.toLowerCase() === therapistName.trim().toLowerCase()
+}
+
+export async function getBusyPeriodsForTherapist(
+  date: string,
+  therapistName: string
+): Promise<BusyPeriod[]> {
   const calendarId = getShopCalendarId()
   const { start, end } = buildDayRange(date)
   const calendar = getCalendarClient()
 
-  const res = await calendar.freebusy.query({
-    requestBody: {
-      timeMin: start.toISOString(),
-      timeMax: end.toISOString(),
-      timeZone: 'America/Los_Angeles',
-      items: [{ id: calendarId }],
-    },
+  const res = await calendar.events.list({
+    calendarId,
+    timeMin: start.toISOString(),
+    timeMax: end.toISOString(),
+    timeZone: 'America/Los_Angeles',
+    singleEvents: true,
   })
 
-  const busy = res.data.calendars?.[calendarId]?.busy ?? []
+  const events = res.data.items ?? []
+  const busy: BusyPeriod[] = []
 
-  return busy.filter(
-    (period): period is BusyPeriod =>
-      typeof period.start === 'string' && typeof period.end === 'string'
-  )
+  for (const event of events) {
+    if (!eventBlocksTherapist(event.description ?? null, therapistName)) {
+      continue
+    }
+
+    const eventStart = event.start?.dateTime ?? event.start?.date
+    const eventEnd = event.end?.dateTime ?? event.end?.date
+
+    if (typeof eventStart === 'string' && typeof eventEnd === 'string') {
+      busy.push({ start: eventStart, end: eventEnd })
+    }
+  }
+
+  return busy
 }
 
 export async function getAvailableSlots(
   date: string,
-  durationMinutes: number
+  durationMinutes: number,
+  therapistName?: string
 ): Promise<string[]> {
   if (!isCalendarConfigured()) {
     return [...SHOP_TIME_SLOTS]
   }
 
-  const busy = await getBusyPeriods(date)
+  if (!therapistName?.trim()) {
+    return []
+  }
+
+  const busy = await getBusyPeriodsForTherapist(date, therapistName)
 
   return SHOP_TIME_SLOTS.filter((time) => {
     const { start, end } = buildTimeRange(date, time, durationMinutes)
@@ -107,13 +149,18 @@ export async function getAvailableSlots(
 export async function isSlotAvailable(
   date: string,
   time: string,
-  durationMinutes: number
+  durationMinutes: number,
+  therapistName: string
 ): Promise<boolean> {
   if (!isCalendarConfigured()) {
     return true
   }
 
-  const slots = await getAvailableSlots(date, durationMinutes)
+  if (!therapistName.trim()) {
+    return false
+  }
+
+  const slots = await getAvailableSlots(date, durationMinutes, therapistName)
   return slots.includes(time)
 }
 

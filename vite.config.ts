@@ -71,6 +71,7 @@ function apiDevPlugin(env: Record<string, string>): Plugin {
             const { getAvailableSlots, isCalendarConfigured, SHOP_TIME_SLOTS } = await import('./api/calendarService.js')
             const date = params.get('date') ?? ''
             const duration = Number(params.get('duration') ?? 60)
+            const therapist = params.get('therapist') ?? ''
 
             if (!date) {
               res.statusCode = 400
@@ -93,7 +94,14 @@ function apiDevPlugin(env: Record<string, string>): Plugin {
               return
             }
 
-            const slots = await getAvailableSlots(date, duration)
+            if (!therapist.trim()) {
+              res.statusCode = 200
+              res.setHeader('Content-Type', 'application/json')
+              res.end(JSON.stringify({ success: true, slots: [], calendarEnabled: true }))
+              return
+            }
+
+            const slots = await getAvailableSlots(date, duration, therapist)
             res.statusCode = 200
             res.setHeader('Content-Type', 'application/json')
             res.end(JSON.stringify({ success: true, slots, calendarEnabled: true }))

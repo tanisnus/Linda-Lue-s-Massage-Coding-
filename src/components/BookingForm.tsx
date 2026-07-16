@@ -70,7 +70,7 @@ export default function BookingForm() {
     }, [currentStep])
 
     useEffect(() => {
-        if (!bookingData.appointmentDate || !bookingData.serviceType) {
+        if (!bookingData.appointmentDate || !bookingData.serviceType || !bookingData.therapistName) {
             setAvailableSlots(TIME_SLOTS)
             setCalendarEnabled(false)
             return
@@ -80,7 +80,7 @@ export default function BookingForm() {
         let cancelled = false
 
         setSlotsLoading(true)
-        fetchAvailableSlots(bookingData.appointmentDate, duration)
+        fetchAvailableSlots(bookingData.appointmentDate, duration, bookingData.therapistName)
             .then(({ slots, calendarEnabled: enabled }) => {
                 if (cancelled) return
                 setAvailableSlots(slots)
@@ -100,7 +100,7 @@ export default function BookingForm() {
             })
 
         return () => { cancelled = true }
-    }, [bookingData.appointmentDate, bookingData.serviceType])
+    }, [bookingData.appointmentDate, bookingData.serviceType, bookingData.therapistName])
 
     const services = SERVICES
 
@@ -179,12 +179,19 @@ export default function BookingForm() {
             }
         }
         
-        // If date changes, reset therapist selection (since therapists vary by day)
+        // If date changes, reset therapist and time (therapists vary by day)
         if (name === 'appointmentDate') {
             setBookingData(prev => ({
                 ...prev,
                 [name]: value,
-                therapistName: '' // Reset therapist when date changes
+                therapistName: '',
+                appointmentTime: '',
+            }))
+        } else if (name === 'therapistName') {
+            setBookingData(prev => ({
+                ...prev,
+                [name]: value,
+                appointmentTime: '',
             }))
         } else {
             setBookingData(prev => ({
@@ -585,38 +592,6 @@ export default function BookingForm() {
                                     </p>
                                 )}
                             </div>
-                            <div className="form-group">
-                                <label htmlFor="appointmentTime">Time *</label>
-                                <select
-                                    id="appointmentTime"
-                                    name="appointmentTime"
-                                    value={bookingData.appointmentTime}
-                                    onChange={handleInputChange}
-                                    required
-                                    disabled={slotsLoading || !bookingData.appointmentDate || !bookingData.serviceType}
-                                >
-                                    <option value="">
-                                        {slotsLoading
-                                            ? 'Loading available times...'
-                                            : !bookingData.serviceType
-                                                ? 'Select a service first'
-                                                : 'Select a time'}
-                                    </option>
-                                    {availableSlots.map(time => (
-                                        <option key={time} value={time}>{time}</option>
-                                    ))}
-                                </select>
-                                {calendarEnabled && bookingData.appointmentDate && bookingData.serviceType && !slotsLoading && (
-                                    <p style={{ fontSize: '12px', color: '#6B7280', marginTop: '4px' }}>
-                                        {availableSlots.length} time slot{availableSlots.length !== 1 ? 's' : ''} available
-                                    </p>
-                                )}
-                                {stepErrors.appointment && (
-                                    <p style={{ fontSize: '12px', color: '#DC2626', marginTop: '4px' }}>
-                                        ⚠️ {stepErrors.appointment}
-                                    </p>
-                                )}
-                            </div>
                         </div>
                         {bookingData.appointmentDate && (
                             <div className="form-row" style={{ marginTop: '16px' }}>
@@ -646,6 +621,47 @@ export default function BookingForm() {
                                 </div>
                             </div>
                         )}
+                        <div className="form-row" style={{ marginTop: '16px' }}>
+                            <div className="form-group">
+                                <label htmlFor="appointmentTime">Time *</label>
+                                <select
+                                    id="appointmentTime"
+                                    name="appointmentTime"
+                                    value={bookingData.appointmentTime}
+                                    onChange={handleInputChange}
+                                    required
+                                    disabled={
+                                        slotsLoading ||
+                                        !bookingData.appointmentDate ||
+                                        !bookingData.serviceType ||
+                                        !bookingData.therapistName
+                                    }
+                                >
+                                    <option value="">
+                                        {slotsLoading
+                                            ? 'Loading available times...'
+                                            : !bookingData.serviceType
+                                                ? 'Select a service first'
+                                                : !bookingData.therapistName
+                                                    ? 'Select a therapist first'
+                                                    : 'Select a time'}
+                                    </option>
+                                    {availableSlots.map(time => (
+                                        <option key={time} value={time}>{time}</option>
+                                    ))}
+                                </select>
+                                {calendarEnabled && bookingData.appointmentDate && bookingData.serviceType && bookingData.therapistName && !slotsLoading && (
+                                    <p style={{ fontSize: '12px', color: '#6B7280', marginTop: '4px' }}>
+                                        {availableSlots.length} time slot{availableSlots.length !== 1 ? 's' : ''} available for {bookingData.therapistName}
+                                    </p>
+                                )}
+                                {stepErrors.appointment && (
+                                    <p style={{ fontSize: '12px', color: '#DC2626', marginTop: '4px' }}>
+                                        ⚠️ {stepErrors.appointment}
+                                    </p>
+                                )}
+                            </div>
+                        </div>
                     </div>
                 )
             }
