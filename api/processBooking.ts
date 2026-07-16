@@ -84,7 +84,8 @@ export async function processBooking(body: unknown): Promise<BookingResult> {
         const slotOpen = await isSlotAvailable(
           booking.appointment_date,
           booking.appointment_time,
-          durationMinutes
+          durationMinutes,
+          booking.therapist_name
         )
 
         if (!slotOpen) {

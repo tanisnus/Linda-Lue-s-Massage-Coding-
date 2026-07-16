@@ -6,9 +6,10 @@ const DEFAULT_TIME_SLOTS = [
 
 export async function fetchAvailableSlots(
   date: string,
-  duration: string
+  duration: string,
+  therapist: string
 ): Promise<{ slots: string[]; calendarEnabled: boolean }> {
-  const params = new URLSearchParams({ date, duration })
+  const params = new URLSearchParams({ date, duration, therapist })
   const response = await fetch(`/api/availability?${params}`)
   const result = await response.json() as {
     success: boolean
