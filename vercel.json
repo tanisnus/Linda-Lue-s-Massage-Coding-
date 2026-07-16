@@ -8,6 +8,9 @@
     },
     "api/availability.ts": {
       "maxDuration": 10
+    },
+    "api/cancel-booking.ts": {
+      "maxDuration": 10
     }
   }
 }

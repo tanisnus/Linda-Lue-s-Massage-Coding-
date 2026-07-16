@@ -1,4 +1,5 @@
 import { Resend } from 'resend'
+import { buildCancelLink } from './bookingToken.js'
 import {
   clientConfirmationEmail,
   staffNotificationEmail,
@@ -37,6 +38,10 @@ function validatePayload(body: unknown): body is BookingPayload {
   )
 }
 
+function getStaffRecipients(shopEmail: string, therapistEmail: string): string[] {
+  return [...new Set([shopEmail, therapistEmail])]
+}
+
 export async function processBooking(body: unknown): Promise<BookingResult> {
   const apiKey = getEnv('RESEND_API_KEY')
   const fromEmail = getEnv('RESEND_FROM_EMAIL')
@@ -71,7 +76,8 @@ export async function processBooking(body: unknown): Promise<BookingResult> {
   }
 
   try {
-    const { isSlotAvailable, isCalendarConfigured } = await import('./calendarService.js')
+    const { isSlotAvailable, isCalendarConfigured, createBookingEvent } = await import('./calendarService.js')
+    let calendarEventId: string | null = null
 
     if (isCalendarConfigured()) {
       try {
@@ -88,20 +94,40 @@ export async function processBooking(body: unknown): Promise<BookingResult> {
             error: 'That time slot was just booked. Please pick another time.',
           }
         }
+
+        calendarEventId = await createBookingEvent(booking)
       } catch (calendarError) {
-        console.error('Calendar availability check failed:', calendarError)
+        console.error('Calendar booking failed:', calendarError)
         const message = calendarError instanceof Error ? calendarError.message : 'Unknown error'
         return {
           success: false,
           status: 500,
-          error: `Could not verify appointment availability: ${message}`,
+          error: `Could not add appointment to the shop calendar: ${message}`,
         }
       }
     }
 
+    const bookingForEmail: BookingPayload = {
+      ...booking,
+      cancel_link: buildCancelLink({
+        eventId: calendarEventId ?? '',
+        client_email: booking.client_email,
+        client_name: booking.client_name,
+        client_phone: booking.client_phone,
+        appointment_date: booking.appointment_date,
+        appointment_time: booking.appointment_time,
+        service_type: booking.service_type,
+        service_price: booking.service_price,
+        therapist_name: booking.therapist_name,
+        duration: booking.duration,
+      }),
+    }
+
     const resend = new Resend(apiKey)
-    const clientEmail = clientConfirmationEmail(booking)
-    const staffEmail = staffNotificationEmail(booking)
+    const clientEmail = clientConfirmationEmail(bookingForEmail)
+    const staffEmail = staffNotificationEmail(bookingForEmail)
+
+    const staffRecipients = getStaffRecipients(shopEmail, therapistEmail)
 
     const [clientResult, staffResult] = await Promise.all([
       resend.emails.send({
@@ -112,8 +138,7 @@ export async function processBooking(body: unknown): Promise<BookingResult> {
       }),
       resend.emails.send({
         from: fromEmail,
-        to: therapistEmail,
-        cc: shopEmail,
+        to: staffRecipients,
         subject: staffEmail.subject,
         html: staffEmail.html,
       }),

@@ -1,5 +1,6 @@
 import { google } from 'googleapis'
-import { buildTimeRange } from './timeUtils.js'
+import { buildTimeRange, toCalendarDateTime } from './timeUtils.js'
+import type { BookingPayload } from './templates.js'
 
 export const SHOP_TIME_SLOTS = [
   '10:00 AM', '11:00 AM', '12:00 PM',
@@ -29,7 +30,7 @@ export function getAuth() {
   return new google.auth.JWT({
     email: clientEmail,
     key: privateKey,
-    scopes: ['https://www.googleapis.com/auth/calendar.readonly'],
+    scopes: ['https://www.googleapis.com/auth/calendar'],
   })
 }
 
@@ -49,7 +50,7 @@ function getShopCalendarId(): string {
   return calendarId
 }
 
-function getCalendarClient() {
+function getCalendarClient(): ReturnType<typeof google.calendar> {
   return google.calendar({ version: 'v3', auth: getAuth() })
 }
 
@@ -114,4 +115,62 @@ export async function isSlotAvailable(
 
   const slots = await getAvailableSlots(date, durationMinutes)
   return slots.includes(time)
+}
+
+export async function createBookingEvent(booking: BookingPayload): Promise<string | null> {
+  if (!isCalendarConfigured()) {
+    return null
+  }
+
+  const durationMinutes = parseInt(booking.duration, 10)
+  if (!Number.isFinite(durationMinutes) || durationMinutes <= 0) {
+    throw new Error('Invalid service duration')
+  }
+
+  const calendarId = getShopCalendarId()
+  const calendar = getCalendarClient()
+  const { start, end, timeZone } = toCalendarDateTime(
+    booking.appointment_date,
+    booking.appointment_time,
+    durationMinutes
+  )
+
+  const therapist = booking.therapist_name || 'Not specified'
+  const requests = booking.special_requests || 'None'
+
+  const res = await calendar.events.insert({
+    calendarId,
+    requestBody: {
+      summary: `${booking.service_type} - ${booking.client_name}`,
+      description: [
+        `Client: ${booking.client_name}`,
+        `Email: ${booking.client_email}`,
+        `Phone: ${booking.client_phone}`,
+        `Service: ${booking.service_type} (${booking.service_price})`,
+        `Therapist: ${therapist}`,
+        `Special requests: ${requests}`,
+        '',
+        'Booked via lindalueswellnessandspa.com',
+      ].join('\n'),
+      location: '15147 Ventura Blvd, Sherman Oaks, CA 91403',
+      start: { dateTime: start, timeZone },
+      end: { dateTime: end, timeZone },
+    },
+  })
+
+  return res.data.id ?? null
+}
+
+export async function deleteBookingEvent(eventId: string): Promise<void> {
+  if (!isCalendarConfigured() || !eventId) {
+    return
+  }
+
+  const calendarId = getShopCalendarId()
+  const calendar = getCalendarClient()
+
+  await calendar.events.delete({
+    calendarId,
+    eventId,
+  })
 }

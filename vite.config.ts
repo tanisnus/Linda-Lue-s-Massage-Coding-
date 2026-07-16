@@ -107,6 +107,72 @@ function apiDevPlugin(env: Record<string, string>): Plugin {
           return
         }
 
+        if (pathname === '/api/cancel-booking') {
+          try {
+            const { getCancelPreview, processCancelBooking } = await import('./api/processCancelBooking.js')
+
+            if (req.method === 'GET') {
+              const params = new URLSearchParams(query)
+              const token = params.get('token') ?? ''
+              if (!token) {
+                res.statusCode = 400
+                res.setHeader('Content-Type', 'application/json')
+                res.end(JSON.stringify({ success: false, error: 'Missing cancellation token' }))
+                return
+              }
+
+              const result = getCancelPreview(token)
+              if (!result.success) {
+                res.statusCode = result.status
+                res.setHeader('Content-Type', 'application/json')
+                res.end(JSON.stringify({ success: false, error: result.error }))
+                return
+              }
+
+              res.statusCode = 200
+              res.setHeader('Content-Type', 'application/json')
+              res.end(JSON.stringify({ success: true, booking: result.booking }))
+              return
+            }
+
+            if (req.method === 'POST') {
+              const body = await readRequestBody(req)
+              const parsed = body ? JSON.parse(body) : null
+              const token = typeof parsed?.token === 'string' ? parsed.token : ''
+              if (!token) {
+                res.statusCode = 400
+                res.setHeader('Content-Type', 'application/json')
+                res.end(JSON.stringify({ success: false, error: 'Missing cancellation token' }))
+                return
+              }
+
+              const result = await processCancelBooking(token)
+              if (!result.success) {
+                res.statusCode = result.status
+                res.setHeader('Content-Type', 'application/json')
+                res.end(JSON.stringify({ success: false, error: result.error }))
+                return
+              }
+
+              res.statusCode = 200
+              res.setHeader('Content-Type', 'application/json')
+              res.end(JSON.stringify({ success: true, booking: result.booking }))
+              return
+            }
+
+            res.statusCode = 405
+            res.setHeader('Content-Type', 'application/json')
+            res.end(JSON.stringify({ success: false, error: 'Method not allowed' }))
+          } catch (error) {
+            console.error('Cancel booking API dev error:', error)
+            res.statusCode = 500
+            res.setHeader('Content-Type', 'application/json')
+            const message = error instanceof Error ? error.message : 'Server error'
+            res.end(JSON.stringify({ success: false, error: message }))
+          }
+          return
+        }
+
         next()
       })
     },

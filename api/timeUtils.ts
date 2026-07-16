@@ -1,4 +1,22 @@
-const SPA_TIMEZONE = 'America/Los_Angeles'
+export const SPA_TIMEZONE = 'America/Los_Angeles'
+
+export function toCalendarDateTime(
+  date: string,
+  time: string,
+  durationMinutes: number
+): { start: string; end: string; timeZone: string } {
+  const { hour, minute } = parseTime12h(time)
+  const endMinutes = hour * 60 + minute + durationMinutes
+  const endHour = Math.floor(endMinutes / 60)
+  const endMinute = endMinutes % 60
+  const pad = (value: number) => String(value).padStart(2, '0')
+
+  return {
+    start: `${date}T${pad(hour)}:${pad(minute)}:00`,
+    end: `${date}T${pad(endHour)}:${pad(endMinute)}:00`,
+    timeZone: SPA_TIMEZONE,
+  }
+}
 
 export function buildTimeRange(
   date: string,
