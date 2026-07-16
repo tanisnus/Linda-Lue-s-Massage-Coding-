@@ -1,6 +1,7 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { sendBookingEmails, generateGoogleCalendarLink } from '../services/emailService'
 import type { BookingEmailData } from '../services/emailService'
+import { fetchAvailableSlots } from '../services/availabilityService'
 import './BookingForm.css'
 
 interface BookingData {
@@ -16,6 +17,22 @@ interface BookingData {
 }
 
 type FormStep = 'personal' | 'service' | 'appointment' | 'requests' | 'review'
+
+const SERVICES = [
+    { name: '30 Minutes Swedish Massage', price: '$45.00', duration: '30' },
+    { name: '60 Minutes Swedish Massage', price: '$69.00', duration: '60' },
+    { name: '90 Minutes Swedish Massage', price: '$99.00', duration: '90' },
+    { name: '120 Minutes Swedish Massage', price: '$138.00', duration: '120' },
+    { name: '60 Minutes Prenatal Massage', price: '$80.00', duration: '60' },
+    { name: '60 Minutes Deep Tissue Massage', price: '$80.00', duration: '60' },
+    { name: '60 Minutes Couple Massage', price: '$138.00', duration: '60' }
+]
+
+const TIME_SLOTS = [
+    '10:00 AM', '11:00 AM', '12:00 PM',
+    '1:00 PM', '2:00 PM', '3:00 PM', '4:00 PM',
+    '5:00 PM', '6:00 PM', '7:00 PM', '8:00 PM', '9:00 PM'
+]
 
 export default function BookingForm() {
     const [currentStep, setCurrentStep] = useState<FormStep>('personal')
@@ -36,16 +53,56 @@ export default function BookingForm() {
     const [errorMessage, setErrorMessage] = useState<string>('')
     const [stepErrors, setStepErrors] = useState<{ [key: string]: string }>({})
     const [fieldErrors, setFieldErrors] = useState<{ [key: string]: string }>({})
+    const [availableSlots, setAvailableSlots] = useState<string[]>(TIME_SLOTS)
+    const [slotsLoading, setSlotsLoading] = useState(false)
+    const [calendarEnabled, setCalendarEnabled] = useState(false)
+    const [canConfirmBooking, setCanConfirmBooking] = useState(false)
 
-    const services = [
-        { name: '30 Minutes Swedish Massage', price: '$45.00', duration: '30' },
-        { name: '60 Minutes Swedish Massage', price: '$69.00', duration: '60' },
-        { name: '90 Minutes Swedish Massage', price: '$99.00', duration: '90' },
-        { name: '120 Minutes Swedish Massage', price: '$138.00', duration: '120' },
-        { name: '60 Minutes Prenatal Massage', price: '$80.00', duration: '60' },
-        { name: '60 Minutes Deep Tissue Massage', price: '$80.00', duration: '60' },
-        { name: '60 Minutes Couple Massage', price: '$138.00', duration: '60' }
-    ]
+    useEffect(() => {
+        if (currentStep !== 'review') {
+            setCanConfirmBooking(false)
+            return
+        }
+
+        setCanConfirmBooking(false)
+        const timer = window.setTimeout(() => setCanConfirmBooking(true), 400)
+        return () => clearTimeout(timer)
+    }, [currentStep])
+
+    useEffect(() => {
+        if (!bookingData.appointmentDate || !bookingData.serviceType) {
+            setAvailableSlots(TIME_SLOTS)
+            setCalendarEnabled(false)
+            return
+        }
+
+        const duration = SERVICES.find(s => s.name === bookingData.serviceType)?.duration || '60'
+        let cancelled = false
+
+        setSlotsLoading(true)
+        fetchAvailableSlots(bookingData.appointmentDate, duration)
+            .then(({ slots, calendarEnabled: enabled }) => {
+                if (cancelled) return
+                setAvailableSlots(slots)
+                setCalendarEnabled(enabled)
+
+                if (bookingData.appointmentTime && !slots.includes(bookingData.appointmentTime)) {
+                    setBookingData(prev => ({ ...prev, appointmentTime: '' }))
+                }
+            })
+            .catch(() => {
+                if (cancelled) return
+                setAvailableSlots(TIME_SLOTS)
+                setCalendarEnabled(false)
+            })
+            .finally(() => {
+                if (!cancelled) setSlotsLoading(false)
+            })
+
+        return () => { cancelled = true }
+    }, [bookingData.appointmentDate, bookingData.serviceType])
+
+    const services = SERVICES
 
     // Get available therapists based on day of week
     const getAvailableTherapists = (dateString: string): string[] => {
@@ -67,12 +124,6 @@ export default function BookingForm() {
         
         return therapistsByDay[dayOfWeek] || []
     }
-
-    const timeSlots = [
-        '10:00 AM', '11:00 AM', '12:00 PM',
-        '1:00 PM', '2:00 PM', '3:00 PM', '4:00 PM',
-        '5:00 PM', '6:00 PM', '7:00 PM', '8:00 PM', '9:00 PM'
-    ]
 
     const steps = [
         { id: 'personal', title: 'Personal Info', description: 'Your contact details' },
@@ -375,6 +426,7 @@ export default function BookingForm() {
                 therapist_name: bookingData.therapistName,
                 special_requests: bookingData.specialRequests,
                 calendar_link: calendarLink,
+                duration: services.find(s => s.name === bookingData.serviceType)?.duration || '60'
             }
 
             const result = await sendBookingEmails(emailData)
@@ -389,8 +441,11 @@ export default function BookingForm() {
         }
     }
 
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault()
+    const confirmBooking = async () => {
+        if (currentStep !== 'review' || !canConfirmBooking) {
+            return
+        }
+
         setIsSubmitting(true)
         setSubmitStatus('idle')
         setErrorMessage('')
@@ -400,18 +455,7 @@ export default function BookingForm() {
             if (result.success) {
                 setSubmitStatus('success')
                 setErrorMessage('')
-                setBookingData({
-                    clientName: '',
-                    clientEmail: '',
-                    clientPhone: '',
-                    serviceType: '',
-                    servicePrice: '',
-                    appointmentDate: '',
-                    appointmentTime: '',
-                    therapistName: '',
-                    specialRequests: ''
-                })
-                setCurrentStep('personal')
+                setCurrentStep('review')
             } else {
                 setSubmitStatus('error')
                 setErrorMessage(result.error || 'An unknown error occurred. Please try again.')
@@ -549,12 +593,24 @@ export default function BookingForm() {
                                     value={bookingData.appointmentTime}
                                     onChange={handleInputChange}
                                     required
+                                    disabled={slotsLoading || !bookingData.appointmentDate || !bookingData.serviceType}
                                 >
-                                    <option value="">Select a time</option>
-                                    {timeSlots.map(time => (
+                                    <option value="">
+                                        {slotsLoading
+                                            ? 'Loading available times...'
+                                            : !bookingData.serviceType
+                                                ? 'Select a service first'
+                                                : 'Select a time'}
+                                    </option>
+                                    {availableSlots.map(time => (
                                         <option key={time} value={time}>{time}</option>
                                     ))}
                                 </select>
+                                {calendarEnabled && bookingData.appointmentDate && bookingData.serviceType && !slotsLoading && (
+                                    <p style={{ fontSize: '12px', color: '#6B7280', marginTop: '4px' }}>
+                                        {availableSlots.length} time slot{availableSlots.length !== 1 ? 's' : ''} available
+                                    </p>
+                                )}
                                 {stepErrors.appointment && (
                                     <p style={{ fontSize: '12px', color: '#DC2626', marginTop: '4px' }}>
                                         ⚠️ {stepErrors.appointment}
@@ -683,7 +739,22 @@ export default function BookingForm() {
                 })}
             </div>
 
-            <form onSubmit={handleSubmit} className="booking-form">
+            <form
+                onSubmit={(e) => e.preventDefault()}
+                onKeyDownCapture={(e) => {
+                    if (e.key !== 'Enter') return
+
+                    const target = e.target as HTMLElement
+                    if (target.tagName === 'TEXTAREA') return
+
+                    e.preventDefault()
+
+                    if (currentStep !== 'review') {
+                        nextStep()
+                    }
+                }}
+                className="booking-form"
+            >
                 {renderStepContent()}
 
                 {/* Navigation Buttons */}
@@ -700,11 +771,12 @@ export default function BookingForm() {
                         </button>
                     ) : (
                         <button
-                            type="submit"
+                            type="button"
+                            onClick={confirmBooking}
                             className="submit-button"
-                            disabled={isSubmitting}
+                            disabled={isSubmitting || submitStatus === 'success' || !canConfirmBooking}
                         >
-                            {isSubmitting ? 'Booking Appointment...' : 'Book Appointment'}
+                            {isSubmitting ? 'Booking Appointment...' : submitStatus === 'success' ? 'Booked ✓' : 'Book Appointment'}
                         </button>
                     )}
                 </div>

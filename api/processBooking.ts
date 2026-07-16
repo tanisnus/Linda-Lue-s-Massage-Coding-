@@ -1,4 +1,5 @@
 import { Resend } from 'resend'
+import { buildCancelLink } from './bookingToken.js'
 import {
   clientConfirmationEmail,
   staffNotificationEmail,
@@ -32,8 +33,13 @@ function validatePayload(body: unknown): body is BookingPayload {
     typeof data.appointment_time === 'string' && data.appointment_time.length > 0 &&
     typeof data.therapist_name === 'string' &&
     typeof data.special_requests === 'string' &&
-    typeof data.calendar_link === 'string' && data.calendar_link.length > 0
+    typeof data.calendar_link === 'string' && data.calendar_link.length > 0 &&
+    typeof data.duration === 'string' && data.duration.length > 0
   )
+}
+
+function getStaffRecipients(shopEmail: string, therapistEmail: string): string[] {
+  return [...new Set([shopEmail, therapistEmail])]
 }
 
 export async function processBooking(body: unknown): Promise<BookingResult> {
@@ -64,10 +70,64 @@ export async function processBooking(body: unknown): Promise<BookingResult> {
     return { success: false, status: 400, error: 'Invalid booking data' }
   }
 
+  const durationMinutes = parseInt(booking.duration, 10)
+  if (!Number.isFinite(durationMinutes) || durationMinutes <= 0) {
+    return { success: false, status: 400, error: 'Invalid service duration' }
+  }
+
   try {
+    const { isSlotAvailable, isCalendarConfigured, createBookingEvent } = await import('./calendarService.js')
+    let calendarEventId: string | null = null
+
+    if (isCalendarConfigured()) {
+      try {
+        const slotOpen = await isSlotAvailable(
+          booking.appointment_date,
+          booking.appointment_time,
+          durationMinutes
+        )
+
+        if (!slotOpen) {
+          return {
+            success: false,
+            status: 409,
+            error: 'That time slot was just booked. Please pick another time.',
+          }
+        }
+
+        calendarEventId = await createBookingEvent(booking)
+      } catch (calendarError) {
+        console.error('Calendar booking failed:', calendarError)
+        const message = calendarError instanceof Error ? calendarError.message : 'Unknown error'
+        return {
+          success: false,
+          status: 500,
+          error: `Could not add appointment to the shop calendar: ${message}`,
+        }
+      }
+    }
+
+    const bookingForEmail: BookingPayload = {
+      ...booking,
+      cancel_link: buildCancelLink({
+        eventId: calendarEventId ?? '',
+        client_email: booking.client_email,
+        client_name: booking.client_name,
+        client_phone: booking.client_phone,
+        appointment_date: booking.appointment_date,
+        appointment_time: booking.appointment_time,
+        service_type: booking.service_type,
+        service_price: booking.service_price,
+        therapist_name: booking.therapist_name,
+        duration: booking.duration,
+      }),
+    }
+
     const resend = new Resend(apiKey)
-    const clientEmail = clientConfirmationEmail(booking)
-    const staffEmail = staffNotificationEmail(booking)
+    const clientEmail = clientConfirmationEmail(bookingForEmail)
+    const staffEmail = staffNotificationEmail(bookingForEmail)
+
+    const staffRecipients = getStaffRecipients(shopEmail, therapistEmail)
 
     const [clientResult, staffResult] = await Promise.all([
       resend.emails.send({
@@ -78,8 +138,7 @@ export async function processBooking(body: unknown): Promise<BookingResult> {
       }),
       resend.emails.send({
         from: fromEmail,
-        to: therapistEmail,
-        cc: shopEmail,
+        to: staffRecipients,
         subject: staffEmail.subject,
         html: staffEmail.html,
       }),

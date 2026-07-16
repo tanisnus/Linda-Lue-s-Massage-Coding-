@@ -9,6 +9,7 @@ export interface BookingEmailData {
     therapist_name: string
     special_requests: string
     calendar_link: string
+    duration: string
 }
 
 export const sendBookingEmails = async (bookingData: BookingEmailData): Promise<{ success: boolean; error?: string }> => {
