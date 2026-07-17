@@ -72,22 +72,44 @@ function overlaps(slotStart: Date, slotEnd: Date, busy: BusyPeriod): boolean {
   return slotStart.getTime() < busyEnd && slotEnd.getTime() > busyStart
 }
 
-function getEventTherapist(description: string | null | undefined): string | null {
+function getEventTherapists(description: string | null | undefined): string[] | null {
   if (!description) return null
-  const match = description.match(/Therapist:\s*(.+)/i)
-  return match ? match[1].trim() : null
+  const match = description.match(/Therapists?:\s*(.+)/i)
+  if (!match) return null
+
+  return match[1]
+    .split(/\s*&\s*|,\s*/)
+    .map((name) => name.trim())
+    .filter(Boolean)
 }
 
 function eventBlocksTherapist(
   description: string | null | undefined,
   therapistName: string
 ): boolean {
-  const eventTherapist = getEventTherapist(description)
-  if (!eventTherapist) {
+  const therapists = getEventTherapists(description)
+  if (!therapists) {
     return true
   }
 
-  return eventTherapist.toLowerCase() === therapistName.trim().toLowerCase()
+  const normalized = therapistName.trim().toLowerCase()
+  return therapists.some((name) => name.toLowerCase() === normalized)
+}
+
+export function parseTherapistList(therapistsParam: string): string[] {
+  return therapistsParam
+    .split(',')
+    .map((name) => name.trim())
+    .filter(Boolean)
+}
+
+export function formatTherapistsForCalendar(therapistName: string): string {
+  const names = therapistName
+    .split(/\s*&\s*|,\s*/)
+    .map((name) => name.trim())
+    .filter(Boolean)
+
+  return names.join(', ')
 }
 
 export async function getBusyPeriodsForTherapist(
@@ -128,39 +150,45 @@ export async function getBusyPeriodsForTherapist(
 export async function getAvailableSlots(
   date: string,
   durationMinutes: number,
-  therapistName?: string
+  therapistsParam?: string
 ): Promise<string[]> {
   if (!isCalendarConfigured()) {
     return [...SHOP_TIME_SLOTS]
   }
 
-  if (!therapistName?.trim()) {
+  const therapists = parseTherapistList(therapistsParam ?? '')
+  if (therapists.length === 0) {
     return []
   }
 
-  const busy = await getBusyPeriodsForTherapist(date, therapistName)
+  let available = [...SHOP_TIME_SLOTS]
 
-  return SHOP_TIME_SLOTS.filter((time) => {
-    const { start, end } = buildTimeRange(date, time, durationMinutes)
-    return !busy.some((period) => overlaps(start, end, period))
-  })
+  for (const therapist of therapists) {
+    const busy = await getBusyPeriodsForTherapist(date, therapist)
+    available = available.filter((time) => {
+      const { start, end } = buildTimeRange(date, time, durationMinutes)
+      return !busy.some((period) => overlaps(start, end, period))
+    })
+  }
+
+  return available
 }
 
 export async function isSlotAvailable(
   date: string,
   time: string,
   durationMinutes: number,
-  therapistName: string
+  therapistsParam: string
 ): Promise<boolean> {
   if (!isCalendarConfigured()) {
     return true
   }
 
-  if (!therapistName.trim()) {
+  if (!parseTherapistList(therapistsParam).length) {
     return false
   }
 
-  const slots = await getAvailableSlots(date, durationMinutes, therapistName)
+  const slots = await getAvailableSlots(date, durationMinutes, therapistsParam)
   return slots.includes(time)
 }
 
@@ -182,7 +210,7 @@ export async function createBookingEvent(booking: BookingPayload): Promise<strin
     durationMinutes
   )
 
-  const therapist = booking.therapist_name || 'Not specified'
+  const therapist = formatTherapistsForCalendar(booking.therapist_name || 'Not specified')
   const requests = booking.special_requests || 'None'
 
   const res = await calendar.events.insert({

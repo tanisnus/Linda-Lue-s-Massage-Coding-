@@ -20,6 +20,32 @@ function isValidEmail(email: string): boolean {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
 }
 
+const COUPLE_MASSAGE_SERVICE = '60 Minutes Couple Massage'
+
+function parseTherapistNames(therapistName: string): string[] {
+  return therapistName
+    .split(/\s*&\s*|,\s*/)
+    .map((name) => name.trim())
+    .filter(Boolean)
+}
+
+function validateCoupleTherapists(serviceType: string, therapistName: string): string | null {
+  if (serviceType !== COUPLE_MASSAGE_SERVICE) {
+    return null
+  }
+
+  const therapists = parseTherapistNames(therapistName)
+  if (therapists.length !== 2) {
+    return 'Couple massage requires two therapists'
+  }
+
+  if (new Set(therapists.map((name) => name.toLowerCase())).size !== 2) {
+    return 'Couple massage requires two different therapists'
+  }
+
+  return null
+}
+
 function validatePayload(body: unknown): body is BookingPayload {
   if (!body || typeof body !== 'object') return false
   const data = body as Record<string, unknown>
@@ -70,13 +96,18 @@ export async function processBooking(body: unknown): Promise<BookingResult> {
     return { success: false, status: 400, error: 'Invalid booking data' }
   }
 
+  const coupleTherapistError = validateCoupleTherapists(booking.service_type, booking.therapist_name)
+  if (coupleTherapistError) {
+    return { success: false, status: 400, error: coupleTherapistError }
+  }
+
   const durationMinutes = parseInt(booking.duration, 10)
   if (!Number.isFinite(durationMinutes) || durationMinutes <= 0) {
     return { success: false, status: 400, error: 'Invalid service duration' }
   }
 
   try {
-    const { isSlotAvailable, isCalendarConfigured, createBookingEvent } = await import('./calendarService.js')
+    const { isSlotAvailable, isCalendarConfigured, createBookingEvent, formatTherapistsForCalendar } = await import('./calendarService.js')
     let calendarEventId: string | null = null
 
     if (isCalendarConfigured()) {
@@ -85,7 +116,7 @@ export async function processBooking(body: unknown): Promise<BookingResult> {
           booking.appointment_date,
           booking.appointment_time,
           durationMinutes,
-          booking.therapist_name
+          formatTherapistsForCalendar(booking.therapist_name)
         )
 
         if (!slotOpen) {
