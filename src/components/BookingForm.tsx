@@ -774,8 +774,8 @@ export default function BookingForm() {
                 {renderStepContent()}
 
                 {/* Navigation Buttons */}
-                <div className="form-navigation">
-                    {currentStep !== 'personal' && (
+                <div className={`form-navigation${submitStatus === 'success' ? ' form-navigation-success' : ''}`}>
+                    {currentStep !== 'personal' && submitStatus !== 'success' && (
                         <button type="button" onClick={prevStep} className="nav-button prev">
                             ← Previous
                         </button>

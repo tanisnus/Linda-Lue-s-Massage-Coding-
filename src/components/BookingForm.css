@@ -246,6 +246,10 @@
     border-top: 1px solid #E5E7EB;
 }
 
+.form-navigation-success {
+    justify-content: flex-end;
+}
+
 .nav-button {
     padding: 12px 24px;
     border-radius: 8px;
