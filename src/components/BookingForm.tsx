@@ -13,10 +13,42 @@ interface BookingData {
     appointmentDate: string
     appointmentTime: string
     therapistName: string
+    therapistName2: string
     specialRequests: string
 }
 
 type FormStep = 'personal' | 'service' | 'appointment' | 'requests' | 'review'
+
+const COUPLE_MASSAGE_SERVICE = '60 Minutes Couple Massage'
+
+function isCoupleMassage(serviceType: string): boolean {
+    return serviceType === COUPLE_MASSAGE_SERVICE
+}
+
+function formatTherapistsForApi(therapistName: string, therapistName2: string, serviceType: string): string {
+    if (isCoupleMassage(serviceType)) {
+        return `${therapistName},${therapistName2}`
+    }
+    return therapistName
+}
+
+function formatTherapistsForDisplay(therapistName: string, therapistName2: string, serviceType: string): string {
+    if (isCoupleMassage(serviceType)) {
+        return `${therapistName} & ${therapistName2}`
+    }
+    return therapistName
+}
+
+function areTherapistsReady(serviceType: string, therapistName: string, therapistName2: string): boolean {
+    if (isCoupleMassage(serviceType)) {
+        return Boolean(
+            therapistName &&
+            therapistName2 &&
+            therapistName !== therapistName2
+        )
+    }
+    return Boolean(therapistName)
+}
 
 const SERVICES = [
     { name: '30 Minutes Swedish Massage', price: '$45.00', duration: '30' },
@@ -45,6 +77,7 @@ export default function BookingForm() {
         appointmentDate: '',
         appointmentTime: '',
         therapistName: '',
+        therapistName2: '',
         specialRequests: ''
     })
 
@@ -70,7 +103,13 @@ export default function BookingForm() {
     }, [currentStep])
 
     useEffect(() => {
-        if (!bookingData.appointmentDate || !bookingData.serviceType || !bookingData.therapistName) {
+        const therapistsReady = areTherapistsReady(
+            bookingData.serviceType,
+            bookingData.therapistName,
+            bookingData.therapistName2
+        )
+
+        if (!bookingData.appointmentDate || !bookingData.serviceType || !therapistsReady) {
             setAvailableSlots(TIME_SLOTS)
             setCalendarEnabled(false)
             return
@@ -80,7 +119,15 @@ export default function BookingForm() {
         let cancelled = false
 
         setSlotsLoading(true)
-        fetchAvailableSlots(bookingData.appointmentDate, duration, bookingData.therapistName)
+        fetchAvailableSlots(
+            bookingData.appointmentDate,
+            duration,
+            formatTherapistsForApi(
+                bookingData.therapistName,
+                bookingData.therapistName2,
+                bookingData.serviceType
+            )
+        )
             .then(({ slots, calendarEnabled: enabled }) => {
                 if (cancelled) return
                 setAvailableSlots(slots)
@@ -100,7 +147,12 @@ export default function BookingForm() {
             })
 
         return () => { cancelled = true }
-    }, [bookingData.appointmentDate, bookingData.serviceType, bookingData.therapistName])
+    }, [
+        bookingData.appointmentDate,
+        bookingData.serviceType,
+        bookingData.therapistName,
+        bookingData.therapistName2,
+    ])
 
     const services = SERVICES
 
@@ -185,14 +237,27 @@ export default function BookingForm() {
                 ...prev,
                 [name]: value,
                 therapistName: '',
+                therapistName2: '',
                 appointmentTime: '',
             }))
-        } else if (name === 'therapistName') {
-            setBookingData(prev => ({
-                ...prev,
-                [name]: value,
-                appointmentTime: '',
-            }))
+        } else if (name === 'therapistName' || name === 'therapistName2') {
+            setBookingData(prev => {
+                const next = {
+                    ...prev,
+                    [name]: value,
+                    appointmentTime: '',
+                }
+
+                if (name === 'therapistName' && value === prev.therapistName2) {
+                    next.therapistName2 = ''
+                }
+
+                if (name === 'therapistName2' && value === prev.therapistName) {
+                    next.therapistName2 = ''
+                }
+
+                return next
+            })
         } else {
             setBookingData(prev => ({
                 ...prev,
@@ -233,7 +298,10 @@ export default function BookingForm() {
         setBookingData(prev => ({
             ...prev,
             serviceType: service.name,
-            servicePrice: service.price
+            servicePrice: service.price,
+            therapistName: '',
+            therapistName2: '',
+            appointmentTime: '',
         }))
     }
 
@@ -250,7 +318,11 @@ export default function BookingForm() {
             case 'appointment':
                 return bookingData.appointmentDate !== '' &&
                        bookingData.appointmentTime !== '' &&
-                       bookingData.therapistName !== ''
+                       areTherapistsReady(
+                           bookingData.serviceType,
+                           bookingData.therapistName,
+                           bookingData.therapistName2
+                       )
             case 'requests':
                 // Requests step is optional, so always allow progression
                 return true
@@ -354,8 +426,22 @@ export default function BookingForm() {
                         errorMsg = 'Please select a date'
                     } else if (!bookingData.appointmentTime) {
                         errorMsg = 'Please select a time'
-                    } else if (!bookingData.therapistName) {
-                        errorMsg = 'Please select a therapist'
+                    } else if (!areTherapistsReady(
+                        bookingData.serviceType,
+                        bookingData.therapistName,
+                        bookingData.therapistName2
+                    )) {
+                        if (isCoupleMassage(bookingData.serviceType)) {
+                            if (!bookingData.therapistName || !bookingData.therapistName2) {
+                                errorMsg = 'Please select two therapists for couple massage'
+                            } else if (bookingData.therapistName === bookingData.therapistName2) {
+                                errorMsg = 'Please select two different therapists'
+                            } else {
+                                errorMsg = 'Please select two therapists for couple massage'
+                            }
+                        } else {
+                            errorMsg = 'Please select a therapist'
+                        }
                     } else {
                         // Validate time format
                         const timeError = validateTimeFormat(bookingData.appointmentTime, bookingData.appointmentDate)
@@ -430,7 +516,11 @@ export default function BookingForm() {
                 service_price: bookingData.servicePrice,
                 appointment_date: bookingData.appointmentDate,
                 appointment_time: bookingData.appointmentTime,
-                therapist_name: bookingData.therapistName,
+                therapist_name: formatTherapistsForDisplay(
+                    bookingData.therapistName,
+                    bookingData.therapistName2,
+                    bookingData.serviceType
+                ),
                 special_requests: bookingData.specialRequests,
                 calendar_link: calendarLink,
                 duration: services.find(s => s.name === bookingData.serviceType)?.duration || '60'
@@ -566,10 +656,24 @@ export default function BookingForm() {
 
             case 'appointment': {
                 const availableTherapists = getAvailableTherapists(bookingData.appointmentDate)
+                const coupleMassage = isCoupleMassage(bookingData.serviceType)
+                const therapistsReady = areTherapistsReady(
+                    bookingData.serviceType,
+                    bookingData.therapistName,
+                    bookingData.therapistName2
+                )
+                const secondTherapistOptions = availableTherapists.filter(
+                    therapist => therapist !== bookingData.therapistName
+                )
                 const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
                 const selectedDayName = bookingData.appointmentDate 
                     ? dayNames[new Date(bookingData.appointmentDate).getDay()]
                     : ''
+                const therapistDisplayName = formatTherapistsForDisplay(
+                    bookingData.therapistName,
+                    bookingData.therapistName2,
+                    bookingData.serviceType
+                )
                 
                 return (
                     <div className="step-content">
@@ -594,32 +698,68 @@ export default function BookingForm() {
                             </div>
                         </div>
                         {bookingData.appointmentDate && (
-                            <div className="form-row" style={{ marginTop: '16px' }}>
-                                <div className="form-group" style={{ width: '100%' }}>
-                                    <label htmlFor="therapistName">Select Therapist *</label>
-                                    <select
-                                        id="therapistName"
-                                        name="therapistName"
-                                        value={bookingData.therapistName}
-                                        onChange={handleInputChange}
-                                        required
-                                    >
-                                        <option value="">
-                                            {availableTherapists.length > 0 
-                                                ? 'Select a therapist' 
-                                                : 'Select a date first'}
-                                        </option>
-                                        {availableTherapists.map(therapist => (
-                                            <option key={therapist} value={therapist}>{therapist}</option>
-                                        ))}
-                                    </select>
-                                    {availableTherapists.length > 0 && (
-                                        <p style={{ fontSize: '12px', color: '#6B7280', marginTop: '4px' }}>
-                                            {availableTherapists.length} therapist{availableTherapists.length !== 1 ? 's' : ''} available on {selectedDayName}
-                                        </p>
-                                    )}
+                            <>
+                                <div className="form-row" style={{ marginTop: '16px' }}>
+                                    <div className="form-group" style={{ width: '100%' }}>
+                                        <label htmlFor="therapistName">
+                                            {coupleMassage ? 'Select First Therapist *' : 'Select Therapist *'}
+                                        </label>
+                                        <select
+                                            id="therapistName"
+                                            name="therapistName"
+                                            value={bookingData.therapistName}
+                                            onChange={handleInputChange}
+                                            required
+                                        >
+                                            <option value="">
+                                                {availableTherapists.length > 0 
+                                                    ? coupleMassage ? 'Select first therapist' : 'Select a therapist'
+                                                    : 'Select a date first'}
+                                            </option>
+                                            {availableTherapists.map(therapist => (
+                                                <option key={therapist} value={therapist}>{therapist}</option>
+                                            ))}
+                                        </select>
+                                    </div>
                                 </div>
-                            </div>
+                                {coupleMassage && (
+                                    <div className="form-row" style={{ marginTop: '16px' }}>
+                                        <div className="form-group" style={{ width: '100%' }}>
+                                            <label htmlFor="therapistName2">Select Second Therapist *</label>
+                                            <select
+                                                id="therapistName2"
+                                                name="therapistName2"
+                                                value={bookingData.therapistName2}
+                                                onChange={handleInputChange}
+                                                required
+                                                disabled={!bookingData.therapistName}
+                                            >
+                                                <option value="">
+                                                    {!bookingData.therapistName
+                                                        ? 'Select first therapist first'
+                                                        : secondTherapistOptions.length > 0
+                                                            ? 'Select second therapist'
+                                                            : 'No other therapists available'}
+                                                </option>
+                                                {secondTherapistOptions.map(therapist => (
+                                                    <option key={therapist} value={therapist}>{therapist}</option>
+                                                ))}
+                                            </select>
+                                            {bookingData.therapistName && bookingData.therapistName2 && bookingData.therapistName === bookingData.therapistName2 && (
+                                                <p style={{ fontSize: '12px', color: '#DC2626', marginTop: '4px' }}>
+                                                    Please choose two different therapists
+                                                </p>
+                                            )}
+                                        </div>
+                                    </div>
+                                )}
+                                {availableTherapists.length > 0 && (
+                                    <p style={{ fontSize: '12px', color: '#6B7280', marginTop: '4px' }}>
+                                        {availableTherapists.length} therapist{availableTherapists.length !== 1 ? 's' : ''} available on {selectedDayName}
+                                        {coupleMassage && ' — couple massage requires two different therapists'}
+                                    </p>
+                                )}
+                            </>
                         )}
                         <div className="form-row" style={{ marginTop: '16px' }}>
                             <div className="form-group">
@@ -634,7 +774,7 @@ export default function BookingForm() {
                                         slotsLoading ||
                                         !bookingData.appointmentDate ||
                                         !bookingData.serviceType ||
-                                        !bookingData.therapistName
+                                        !therapistsReady
                                     }
                                 >
                                     <option value="">
@@ -642,17 +782,19 @@ export default function BookingForm() {
                                             ? 'Loading available times...'
                                             : !bookingData.serviceType
                                                 ? 'Select a service first'
-                                                : !bookingData.therapistName
-                                                    ? 'Select a therapist first'
-                                                    : 'Select a time'}
+                                                : coupleMassage && (!bookingData.therapistName || !bookingData.therapistName2)
+                                                    ? 'Select two therapists first'
+                                                    : !bookingData.therapistName
+                                                        ? 'Select a therapist first'
+                                                        : 'Select a time'}
                                     </option>
                                     {availableSlots.map(time => (
                                         <option key={time} value={time}>{time}</option>
                                     ))}
                                 </select>
-                                {calendarEnabled && bookingData.appointmentDate && bookingData.serviceType && bookingData.therapistName && !slotsLoading && (
+                                {calendarEnabled && bookingData.appointmentDate && bookingData.serviceType && therapistsReady && !slotsLoading && (
                                     <p style={{ fontSize: '12px', color: '#6B7280', marginTop: '4px' }}>
-                                        {availableSlots.length} time slot{availableSlots.length !== 1 ? 's' : ''} available for {bookingData.therapistName}
+                                        {availableSlots.length} time slot{availableSlots.length !== 1 ? 's' : ''} available for {therapistDisplayName}
                                     </p>
                                 )}
                                 {stepErrors.appointment && (
@@ -694,7 +836,19 @@ export default function BookingForm() {
                                 <p><strong>Name:</strong> {bookingData.clientName}</p>
                                 <p><strong>Email:</strong> {bookingData.clientEmail}</p>
                                 <p><strong>Phone:</strong> {bookingData.clientPhone}</p>
-                                {bookingData.therapistName && <p><strong>Preferred Therapist:</strong> {bookingData.therapistName}</p>}
+                                {areTherapistsReady(
+                                    bookingData.serviceType,
+                                    bookingData.therapistName,
+                                    bookingData.therapistName2
+                                ) && (
+                                    <p><strong>Preferred Therapist{isCoupleMassage(bookingData.serviceType) ? 's' : ''}:</strong>{' '}
+                                        {formatTherapistsForDisplay(
+                                            bookingData.therapistName,
+                                            bookingData.therapistName2,
+                                            bookingData.serviceType
+                                        )}
+                                    </p>
+                                )}
                             </div>
                             
                             <div className="review-section">
