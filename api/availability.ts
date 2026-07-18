@@ -1,5 +1,5 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node'
-import { getAvailableSlots, isCalendarConfigured, SHOP_TIME_SLOTS } from './calendarService.js'
+import { getAvailableSlots, isCalendarConfigured, SHOP_TIME_SLOTS } from '../server/calendarService.js'
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   try {

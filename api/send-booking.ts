@@ -1,6 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node'
-import { processBooking } from './processBooking.js'
-import { checkBookingRateLimit, getClientIp } from './rateLimit.js'
+import { processBooking } from '../server/processBooking.js'
+import { checkBookingRateLimit, getClientIp } from '../server/rateLimit.js'
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   try {

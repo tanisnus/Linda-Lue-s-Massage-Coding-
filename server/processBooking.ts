@@ -5,9 +5,9 @@ import {
   staffNotificationEmail,
   type BookingPayload,
 } from './templates.js'
-import { isValidPhone, normalizePhoneForStorage, sanitizePhoneDigits, validatePhoneDigits } from './phoneUtils.js'
-import { isValidEmail, validateEmail } from './emailUtils.js'
-import { isValidFullName, normalizeFullName, validateFullName } from './nameUtils.js'
+import { isValidPhone, normalizePhoneForStorage, sanitizePhoneDigits, validatePhoneDigits } from '../shared/phoneUtils.js'
+import { isValidEmail, validateEmail } from '../shared/emailUtils.js'
+import { isValidFullName, normalizeFullName, validateFullName } from '../shared/nameUtils.js'
 
 export type BookingResult =
   | { success: true }

@@ -1,5 +1,5 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node'
-import { getCancelPreview, processCancelBooking } from './processCancelBooking.js'
+import { getCancelPreview, processCancelBooking } from '../server/processCancelBooking.js'
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   try {
