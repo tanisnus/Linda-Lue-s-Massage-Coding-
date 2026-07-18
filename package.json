@@ -12,7 +12,8 @@
     "test:phone": "node --experimental-strip-types --test api/phoneUtils.test.ts",
     "test:email": "node --experimental-strip-types --test api/emailUtils.test.ts",
     "test:html": "node --experimental-strip-types --test api/htmlUtils.test.ts",
-    "test:validation": "npm run test:phone && npm run test:email && npm run test:html"
+    "test:name": "node --experimental-strip-types --test api/nameUtils.test.ts",
+    "test:validation": "npm run test:phone && npm run test:email && npm run test:html && npm run test:name"
   },
   "dependencies": {
     "googleapis": "^173.0.0",

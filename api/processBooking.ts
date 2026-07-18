@@ -7,6 +7,7 @@ import {
 } from './templates.js'
 import { isValidPhone, normalizePhoneForStorage, sanitizePhoneDigits, validatePhoneDigits } from './phoneUtils.js'
 import { isValidEmail, validateEmail } from './emailUtils.js'
+import { isValidFullName, normalizeFullName, validateFullName } from './nameUtils.js'
 
 export type BookingResult =
   | { success: true }
@@ -74,6 +75,14 @@ function validatePayload(body: unknown): body is BookingPayload {
   )
 }
 
+function getNameValidationError(name: unknown): string | null {
+  if (typeof name !== 'string' || !name.trim()) {
+    return 'Full name is required'
+  }
+
+  return validateFullName(name)
+}
+
 function getPhoneValidationError(phone: unknown): string | null {
   if (typeof phone !== 'string' || !phone.trim()) {
     return 'Phone number is required'
@@ -111,6 +120,16 @@ export async function processBooking(body: unknown): Promise<BookingResult> {
   }
 
   if (!validatePayload(booking)) {
+    const nameError = getNameValidationError(
+      typeof booking === 'object' && booking !== null
+        ? (booking as Record<string, unknown>).client_name
+        : undefined
+    )
+
+    if (nameError) {
+      return { success: false, status: 400, error: nameError }
+    }
+
     const phoneError = getPhoneValidationError(
       typeof booking === 'object' && booking !== null
         ? (booking as Record<string, unknown>).client_phone
@@ -134,6 +153,11 @@ export async function processBooking(body: unknown): Promise<BookingResult> {
     return { success: false, status: 400, error: 'Invalid booking data' }
   }
 
+  const nameError = getNameValidationError(booking.client_name)
+  if (nameError || !isValidFullName(booking.client_name)) {
+    return { success: false, status: 400, error: nameError ?? 'Please enter a valid full name' }
+  }
+
   const emailError = getEmailValidationError(booking.client_email)
   if (emailError || !isValidEmailAddress(booking.client_email)) {
     return { success: false, status: 400, error: emailError ?? 'Please enter a valid email address' }
@@ -151,6 +175,7 @@ export async function processBooking(body: unknown): Promise<BookingResult> {
 
   const normalizedBooking: BookingPayload = {
     ...booking,
+    client_name: normalizeFullName(booking.client_name),
     client_phone: normalizePhoneForStorage(booking.client_phone),
   }
 

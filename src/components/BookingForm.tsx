@@ -10,6 +10,12 @@ import {
     normalizePhoneForSubmit,
 } from '../utils/phoneUtils'
 import { validateEmail } from '../utils/emailUtils'
+import {
+    FULL_NAME_MAX_LENGTH,
+    getFullNameFieldError,
+    normalizeFullName,
+    validateFullName,
+} from '../utils/nameUtils'
 import './BookingForm.css'
 
 interface BookingData {
@@ -208,11 +214,16 @@ export default function BookingForm() {
         // Validate fields in real-time for personal info step
         if (currentStep === 'personal') {
             if (name === 'clientName') {
-                const nameError = value.trim() === '' ? 'Please enter your full name' : ''
+                const nameError = getFullNameFieldError(value, 'input')
                 setFieldErrors(prev => ({
                     ...prev,
                     clientName: nameError
                 }))
+                setBookingData(prev => ({
+                    ...prev,
+                    clientName: value
+                }))
+                return
             } else if (name === 'clientEmail') {
                 const emailError = value.trim() === '' 
                     ? 'Please enter your email address' 
@@ -285,10 +296,15 @@ export default function BookingForm() {
         
         if (currentStep === 'personal') {
             if (name === 'clientName') {
-                const nameError = value.trim() === '' ? 'Please enter your full name' : ''
+                const normalized = normalizeFullName(value)
+                const nameError = getFullNameFieldError(normalized, 'blur')
                 setFieldErrors(prev => ({
                     ...prev,
                     clientName: nameError
+                }))
+                setBookingData(prev => ({
+                    ...prev,
+                    clientName: normalized
                 }))
             } else if (name === 'clientEmail') {
                 const emailError = value.trim() === '' 
@@ -327,9 +343,10 @@ export default function BookingForm() {
     const validateCurrentStep = (): boolean => {
         switch (currentStep) {
             case 'personal': {
+                const nameValid = !validateFullName(bookingData.clientName)
                 const emailValid = !fieldErrors.clientEmail && bookingData.clientEmail.trim() !== ''
                 const phoneValid = !validatePhoneDigits(bookingData.clientPhone)
-                return bookingData.clientName.trim() !== '' &&
+                return nameValid &&
                        emailValid &&
                        phoneValid
             }
@@ -369,8 +386,9 @@ export default function BookingForm() {
     const validatePersonalInfoFields = () => {
         const errors: { [key: string]: string } = {}
         
-        if (!bookingData.clientName.trim()) {
-            errors.clientName = 'Please enter your full name'
+        const nameError = validateFullName(bookingData.clientName)
+        if (nameError) {
+            errors.clientName = nameError
         }
         
         if (!bookingData.clientEmail.trim()) {
@@ -505,7 +523,7 @@ export default function BookingForm() {
 
             // Convert BookingData to BookingEmailData format
             const emailData: BookingEmailData = {
-                client_name: bookingData.clientName,
+                client_name: normalizeFullName(bookingData.clientName),
                 client_email: bookingData.clientEmail,
                 client_phone: normalizePhoneForSubmit(bookingData.clientPhone),
                 service_type: bookingData.serviceType,
@@ -579,7 +597,10 @@ export default function BookingForm() {
                                     value={bookingData.clientName}
                                     onChange={handleInputChange}
                                     onBlur={handleFieldBlur}
+                                    autoComplete="name"
+                                    maxLength={FULL_NAME_MAX_LENGTH}
                                     required
+                                    aria-invalid={Boolean(fieldErrors.clientName)}
                                     className={fieldErrors.clientName ? 'error-input' : ''}
                                 />
                                 {fieldErrors.clientName && (
