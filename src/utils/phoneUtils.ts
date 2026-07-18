@@ -5,4 +5,4 @@ export {
   validatePhoneDigits,
   getPhoneFieldError,
   normalizePhoneForSubmit,
-} from '../../shared/phoneUtils.ts'
+} from '../../shared/phoneUtils.js'

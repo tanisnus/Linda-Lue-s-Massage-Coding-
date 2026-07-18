@@ -7,4 +7,4 @@ export {
   normalizePhoneForSubmit,
   isValidPhone,
   normalizePhoneForStorage,
-} from '../shared/phoneUtils.ts'
+} from '../shared/phoneUtils.js'

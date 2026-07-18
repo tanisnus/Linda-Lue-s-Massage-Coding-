@@ -1,5 +1,5 @@
 import type { CancelTokenPayload } from './bookingToken.js'
-import { escapeHtml, sanitizeEmailSubject, sanitizeUrl } from '../shared/htmlUtils.ts'
+import { escapeHtml, sanitizeEmailSubject, sanitizeUrl } from '../shared/htmlUtils.js'
 
 export interface BookingPayload {
   client_name: string

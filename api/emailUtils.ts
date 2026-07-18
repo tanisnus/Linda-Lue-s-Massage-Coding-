@@ -1,1 +1,1 @@
-export { validateEmail, isValidEmail } from '../shared/emailUtils.ts'
+export { validateEmail, isValidEmail } from '../shared/emailUtils.js'

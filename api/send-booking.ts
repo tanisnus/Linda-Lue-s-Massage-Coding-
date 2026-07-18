@@ -10,7 +10,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     const clientIp = getClientIp(req.headers)
     const rateLimit = checkBookingRateLimit(clientIp)
-    if (!rateLimit.allowed) {
+    if (rateLimit.allowed === false) {
       res.setHeader('Retry-After', String(rateLimit.retryAfterSeconds))
       return res.status(429).json({
         success: false,

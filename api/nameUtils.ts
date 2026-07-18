@@ -5,4 +5,4 @@ export {
   validateFullName,
   getFullNameFieldError,
   isValidFullName,
-} from '../shared/nameUtils.ts'
+} from '../shared/nameUtils.js'

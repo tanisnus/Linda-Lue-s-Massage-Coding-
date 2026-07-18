@@ -36,7 +36,7 @@ function apiDevPlugin(env: Record<string, string>): Plugin {
             const { checkBookingRateLimit, getClientIp } = await import('./api/rateLimit.js')
             const clientIp = getClientIp(req.headers as Record<string, string | string[] | undefined>)
             const rateLimit = checkBookingRateLimit(clientIp)
-            if (!rateLimit.allowed) {
+            if (rateLimit.allowed === false) {
               res.statusCode = 429
               res.setHeader('Content-Type', 'application/json')
               res.setHeader('Retry-After', String(rateLimit.retryAfterSeconds))

@@ -9,10 +9,10 @@
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "test:phone": "node --experimental-strip-types --test api/phoneUtils.test.ts",
-    "test:email": "node --experimental-strip-types --test api/emailUtils.test.ts",
-    "test:html": "node --experimental-strip-types --test api/htmlUtils.test.ts",
-    "test:name": "node --experimental-strip-types --test api/nameUtils.test.ts",
+    "test:phone": "node --experimental-strip-types --test tests/phoneUtils.test.ts",
+    "test:email": "node --experimental-strip-types --test tests/emailUtils.test.ts",
+    "test:html": "node --experimental-strip-types --test tests/htmlUtils.test.ts",
+    "test:name": "node --experimental-strip-types --test tests/nameUtils.test.ts",
     "test:validation": "npm run test:phone && npm run test:email && npm run test:html && npm run test:name"
   },
   "dependencies": {
