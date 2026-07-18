@@ -33,6 +33,20 @@ function apiDevPlugin(env: Record<string, string>): Plugin {
           }
 
           try {
+            const { checkBookingRateLimit, getClientIp } = await import('./api/rateLimit.js')
+            const clientIp = getClientIp(req.headers as Record<string, string | string[] | undefined>)
+            const rateLimit = checkBookingRateLimit(clientIp)
+            if (!rateLimit.allowed) {
+              res.statusCode = 429
+              res.setHeader('Content-Type', 'application/json')
+              res.setHeader('Retry-After', String(rateLimit.retryAfterSeconds))
+              res.end(JSON.stringify({
+                success: false,
+                error: 'Too many booking attempts. Please wait a few minutes and try again.',
+              }))
+              return
+            }
+
             const { processBooking } = await import('./api/processBooking.js')
             const body = await readRequestBody(req)
             const parsed = body ? JSON.parse(body) : null
