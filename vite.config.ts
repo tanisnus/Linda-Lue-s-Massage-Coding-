@@ -33,7 +33,21 @@ function apiDevPlugin(env: Record<string, string>): Plugin {
           }
 
           try {
-            const { processBooking } = await import('./api/processBooking.js')
+            const { checkBookingRateLimit, getClientIp } = await import('./server/rateLimit.js')
+            const clientIp = getClientIp(req.headers as Record<string, string | string[] | undefined>)
+            const rateLimit = checkBookingRateLimit(clientIp)
+            if (rateLimit.allowed === false) {
+              res.statusCode = 429
+              res.setHeader('Content-Type', 'application/json')
+              res.setHeader('Retry-After', String(rateLimit.retryAfterSeconds))
+              res.end(JSON.stringify({
+                success: false,
+                error: 'Too many booking attempts. Please wait a few minutes and try again.',
+              }))
+              return
+            }
+
+            const { processBooking } = await import('./server/processBooking.js')
             const body = await readRequestBody(req)
             const parsed = body ? JSON.parse(body) : null
             const result = await processBooking(parsed)
@@ -68,7 +82,7 @@ function apiDevPlugin(env: Record<string, string>): Plugin {
 
           try {
             const params = new URLSearchParams(query)
-            const { getAvailableSlots, isCalendarConfigured, SHOP_TIME_SLOTS } = await import('./api/calendarService.js')
+            const { getAvailableSlots, isCalendarConfigured, SHOP_TIME_SLOTS } = await import('./server/calendarService.js')
             const date = params.get('date') ?? ''
             const duration = Number(params.get('duration') ?? 60)
             const therapist = params.get('therapist') ?? ''
@@ -117,7 +131,7 @@ function apiDevPlugin(env: Record<string, string>): Plugin {
 
         if (pathname === '/api/cancel-booking') {
           try {
-            const { getCancelPreview, processCancelBooking } = await import('./api/processCancelBooking.js')
+            const { getCancelPreview, processCancelBooking } = await import('./server/processCancelBooking.js')
 
             if (req.method === 'GET') {
               const params = new URLSearchParams(query)

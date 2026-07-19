@@ -5,6 +5,9 @@ import {
   staffNotificationEmail,
   type BookingPayload,
 } from './templates.js'
+import { isValidPhone, normalizePhoneForStorage, sanitizePhoneDigits, validatePhoneDigits } from '../shared/phoneUtils.js'
+import { isValidEmail, validateEmail } from '../shared/emailUtils.js'
+import { isValidFullName, normalizeFullName, validateFullName } from '../shared/nameUtils.js'
 
 export type BookingResult =
   | { success: true }
@@ -16,8 +19,16 @@ function getEnv(name: string): string | undefined {
   return value.replace(/^["']|["']$/g, '')
 }
 
-function isValidEmail(email: string): boolean {
-  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
+function isValidEmailAddress(email: string): boolean {
+  return isValidEmail(email)
+}
+
+function getEmailValidationError(email: unknown): string | null {
+  if (typeof email !== 'string' || !email.trim()) {
+    return 'Email address is required'
+  }
+
+  return validateEmail(email)
 }
 
 const COUPLE_MASSAGE_SERVICE = '60 Minutes Couple Massage'
@@ -51,8 +62,8 @@ function validatePayload(body: unknown): body is BookingPayload {
   const data = body as Record<string, unknown>
   return (
     typeof data.client_name === 'string' && data.client_name.length > 0 &&
-    typeof data.client_email === 'string' && isValidEmail(data.client_email) &&
-    typeof data.client_phone === 'string' &&
+    typeof data.client_email === 'string' && data.client_email.length > 0 &&
+    typeof data.client_phone === 'string' && data.client_phone.length > 0 &&
     typeof data.service_type === 'string' && data.service_type.length > 0 &&
     typeof data.service_price === 'string' &&
     typeof data.appointment_date === 'string' && data.appointment_date.length > 0 &&
@@ -62,6 +73,22 @@ function validatePayload(body: unknown): body is BookingPayload {
     typeof data.calendar_link === 'string' && data.calendar_link.length > 0 &&
     typeof data.duration === 'string' && data.duration.length > 0
   )
+}
+
+function getNameValidationError(name: unknown): string | null {
+  if (typeof name !== 'string' || !name.trim()) {
+    return 'Full name is required'
+  }
+
+  return validateFullName(name)
+}
+
+function getPhoneValidationError(phone: unknown): string | null {
+  if (typeof phone !== 'string' || !phone.trim()) {
+    return 'Phone number is required'
+  }
+
+  return validatePhoneDigits(sanitizePhoneDigits(phone))
 }
 
 function getStaffRecipients(shopEmail: string, therapistEmail: string): string[] {
@@ -93,7 +120,52 @@ export async function processBooking(body: unknown): Promise<BookingResult> {
   }
 
   if (!validatePayload(booking)) {
+    const nameError = getNameValidationError(
+      typeof booking === 'object' && booking !== null
+        ? (booking as Record<string, unknown>).client_name
+        : undefined
+    )
+
+    if (nameError) {
+      return { success: false, status: 400, error: nameError }
+    }
+
+    const phoneError = getPhoneValidationError(
+      typeof booking === 'object' && booking !== null
+        ? (booking as Record<string, unknown>).client_phone
+        : undefined
+    )
+
+    if (phoneError) {
+      return { success: false, status: 400, error: phoneError }
+    }
+
+    const emailError = getEmailValidationError(
+      typeof booking === 'object' && booking !== null
+        ? (booking as Record<string, unknown>).client_email
+        : undefined
+    )
+
+    if (emailError) {
+      return { success: false, status: 400, error: emailError }
+    }
+
     return { success: false, status: 400, error: 'Invalid booking data' }
+  }
+
+  const nameError = getNameValidationError(booking.client_name)
+  if (nameError || !isValidFullName(booking.client_name)) {
+    return { success: false, status: 400, error: nameError ?? 'Please enter a valid full name' }
+  }
+
+  const emailError = getEmailValidationError(booking.client_email)
+  if (emailError || !isValidEmailAddress(booking.client_email)) {
+    return { success: false, status: 400, error: emailError ?? 'Please enter a valid email address' }
+  }
+
+  const phoneError = getPhoneValidationError(booking.client_phone)
+  if (phoneError || !isValidPhone(booking.client_phone)) {
+    return { success: false, status: 400, error: phoneError ?? 'Please enter a valid US phone number' }
   }
 
   const coupleTherapistError = validateCoupleTherapists(booking.service_type, booking.therapist_name)
@@ -101,7 +173,13 @@ export async function processBooking(body: unknown): Promise<BookingResult> {
     return { success: false, status: 400, error: coupleTherapistError }
   }
 
-  const durationMinutes = parseInt(booking.duration, 10)
+  const normalizedBooking: BookingPayload = {
+    ...booking,
+    client_name: normalizeFullName(booking.client_name),
+    client_phone: normalizePhoneForStorage(booking.client_phone),
+  }
+
+  const durationMinutes = parseInt(normalizedBooking.duration, 10)
   if (!Number.isFinite(durationMinutes) || durationMinutes <= 0) {
     return { success: false, status: 400, error: 'Invalid service duration' }
   }
@@ -113,10 +191,10 @@ export async function processBooking(body: unknown): Promise<BookingResult> {
     if (isCalendarConfigured()) {
       try {
         const slotOpen = await isSlotAvailable(
-          booking.appointment_date,
-          booking.appointment_time,
+          normalizedBooking.appointment_date,
+          normalizedBooking.appointment_time,
           durationMinutes,
-          formatTherapistsForCalendar(booking.therapist_name)
+          formatTherapistsForCalendar(normalizedBooking.therapist_name)
         )
 
         if (!slotOpen) {
@@ -127,7 +205,7 @@ export async function processBooking(body: unknown): Promise<BookingResult> {
           }
         }
 
-        calendarEventId = await createBookingEvent(booking)
+        calendarEventId = await createBookingEvent(normalizedBooking)
       } catch (calendarError) {
         console.error('Calendar booking failed:', calendarError)
         const message = calendarError instanceof Error ? calendarError.message : 'Unknown error'
@@ -140,18 +218,18 @@ export async function processBooking(body: unknown): Promise<BookingResult> {
     }
 
     const bookingForEmail: BookingPayload = {
-      ...booking,
+      ...normalizedBooking,
       cancel_link: buildCancelLink({
         eventId: calendarEventId ?? '',
-        client_email: booking.client_email,
-        client_name: booking.client_name,
-        client_phone: booking.client_phone,
-        appointment_date: booking.appointment_date,
-        appointment_time: booking.appointment_time,
-        service_type: booking.service_type,
-        service_price: booking.service_price,
-        therapist_name: booking.therapist_name,
-        duration: booking.duration,
+        client_email: normalizedBooking.client_email,
+        client_name: normalizedBooking.client_name,
+        client_phone: normalizedBooking.client_phone,
+        appointment_date: normalizedBooking.appointment_date,
+        appointment_time: normalizedBooking.appointment_time,
+        service_type: normalizedBooking.service_type,
+        service_price: normalizedBooking.service_price,
+        therapist_name: normalizedBooking.therapist_name,
+        duration: normalizedBooking.duration,
       }),
     }
 
@@ -164,7 +242,7 @@ export async function processBooking(body: unknown): Promise<BookingResult> {
     const [clientResult, staffResult] = await Promise.all([
       resend.emails.send({
         from: fromEmail,
-        to: booking.client_email,
+        to: normalizedBooking.client_email,
         subject: clientEmail.subject,
         html: clientEmail.html,
       }),

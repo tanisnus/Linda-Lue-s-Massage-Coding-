@@ -2,6 +2,20 @@ import { useEffect, useState } from 'react'
 import { sendBookingEmails, generateGoogleCalendarLink } from '../services/emailService'
 import type { BookingEmailData } from '../services/emailService'
 import { fetchAvailableSlots } from '../services/availabilityService'
+import {
+    formatPhoneNumber,
+    sanitizePhoneDigits,
+    validatePhoneDigits,
+    getPhoneFieldError,
+    normalizePhoneForSubmit,
+} from '../utils/phoneUtils'
+import { validateEmail } from '../utils/emailUtils'
+import {
+    FULL_NAME_MAX_LENGTH,
+    getFullNameFieldError,
+    normalizeFullName,
+    validateFullName,
+} from '../utils/nameUtils'
 import './BookingForm.css'
 
 interface BookingData {
@@ -200,11 +214,16 @@ export default function BookingForm() {
         // Validate fields in real-time for personal info step
         if (currentStep === 'personal') {
             if (name === 'clientName') {
-                const nameError = value.trim() === '' ? 'Please enter your full name' : ''
+                const nameError = getFullNameFieldError(value, 'input')
                 setFieldErrors(prev => ({
                     ...prev,
                     clientName: nameError
                 }))
+                setBookingData(prev => ({
+                    ...prev,
+                    clientName: value
+                }))
+                return
             } else if (name === 'clientEmail') {
                 const emailError = value.trim() === '' 
                     ? 'Please enter your email address' 
@@ -214,11 +233,17 @@ export default function BookingForm() {
                     clientEmail: emailError
                 }))
             } else if (name === 'clientPhone') {
-                const phoneError = value.trim() === '' ? 'Please enter your phone number' : ''
+                const digits = sanitizePhoneDigits(value)
+                const phoneError = getPhoneFieldError(digits, 'input')
                 setFieldErrors(prev => ({
                     ...prev,
                     clientPhone: phoneError
                 }))
+                setBookingData(prev => ({
+                    ...prev,
+                    clientPhone: digits
+                }))
+                return
             }
         } else {
             // Clear field error when user changes other fields
@@ -271,10 +296,15 @@ export default function BookingForm() {
         
         if (currentStep === 'personal') {
             if (name === 'clientName') {
-                const nameError = value.trim() === '' ? 'Please enter your full name' : ''
+                const normalized = normalizeFullName(value)
+                const nameError = getFullNameFieldError(normalized, 'blur')
                 setFieldErrors(prev => ({
                     ...prev,
                     clientName: nameError
+                }))
+                setBookingData(prev => ({
+                    ...prev,
+                    clientName: normalized
                 }))
             } else if (name === 'clientEmail') {
                 const emailError = value.trim() === '' 
@@ -285,10 +315,15 @@ export default function BookingForm() {
                     clientEmail: emailError
                 }))
             } else if (name === 'clientPhone') {
-                const phoneError = value.trim() === '' ? 'Please enter your phone number' : ''
+                const digits = sanitizePhoneDigits(value)
+                const phoneError = getPhoneFieldError(digits, 'blur')
                 setFieldErrors(prev => ({
                     ...prev,
                     clientPhone: phoneError
+                }))
+                setBookingData(prev => ({
+                    ...prev,
+                    clientPhone: digits
                 }))
             }
         }
@@ -308,10 +343,12 @@ export default function BookingForm() {
     const validateCurrentStep = (): boolean => {
         switch (currentStep) {
             case 'personal': {
+                const nameValid = !validateFullName(bookingData.clientName)
                 const emailValid = !fieldErrors.clientEmail && bookingData.clientEmail.trim() !== ''
-                return bookingData.clientName.trim() !== '' &&
+                const phoneValid = !validatePhoneDigits(bookingData.clientPhone)
+                return nameValid &&
                        emailValid &&
-                       bookingData.clientPhone.trim() !== ''
+                       phoneValid
             }
             case 'service':
                 return bookingData.serviceType !== ''
@@ -334,35 +371,6 @@ export default function BookingForm() {
         }
     }
 
-    const validateEmail = (email: string): string | null => {
-        if (!email) return null // Empty email is handled by required validation
-        
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-        
-        // Check for common invalid patterns
-        if (email.includes('@') && !email.includes('@gmail.com') && !email.includes('@yahoo.com') && !email.includes('@hotmail.com') && !email.includes('@outlook.com')) {
-            // Allow other domains, just check basic format
-        }
-        
-        if (!emailRegex.test(email)) {
-            if (email.includes('@') && !email.includes('.')) {
-                return 'Email must include a domain (e.g., @gmail.com)'
-            }
-            if (email.startsWith('@')) {
-                return 'Email cannot start with @'
-            }
-            if (email.includes('@') && email.split('@').length > 2) {
-                return 'Email can only contain one @ symbol'
-            }
-            if (!email.includes('@')) {
-                return 'Email must include @ symbol'
-            }
-            return 'Please enter a valid email address (e.g., name@gmail.com)'
-        }
-        
-        return null // Valid email
-    }
-
     const validateTimeFormat = (time: string, date: string): string | null => {
         if (!time || !date) return null
         
@@ -378,8 +386,9 @@ export default function BookingForm() {
     const validatePersonalInfoFields = () => {
         const errors: { [key: string]: string } = {}
         
-        if (!bookingData.clientName.trim()) {
-            errors.clientName = 'Please enter your full name'
+        const nameError = validateFullName(bookingData.clientName)
+        if (nameError) {
+            errors.clientName = nameError
         }
         
         if (!bookingData.clientEmail.trim()) {
@@ -391,8 +400,13 @@ export default function BookingForm() {
             }
         }
         
-        if (!bookingData.clientPhone.trim()) {
+        if (!bookingData.clientPhone) {
             errors.clientPhone = 'Please enter your phone number'
+        } else {
+            const phoneError = validatePhoneDigits(bookingData.clientPhone)
+            if (phoneError) {
+                errors.clientPhone = phoneError
+            }
         }
         
         return errors
@@ -509,9 +523,9 @@ export default function BookingForm() {
 
             // Convert BookingData to BookingEmailData format
             const emailData: BookingEmailData = {
-                client_name: bookingData.clientName,
+                client_name: normalizeFullName(bookingData.clientName),
                 client_email: bookingData.clientEmail,
-                client_phone: bookingData.clientPhone,
+                client_phone: normalizePhoneForSubmit(bookingData.clientPhone),
                 service_type: bookingData.serviceType,
                 service_price: bookingData.servicePrice,
                 appointment_date: bookingData.appointmentDate,
@@ -583,7 +597,10 @@ export default function BookingForm() {
                                     value={bookingData.clientName}
                                     onChange={handleInputChange}
                                     onBlur={handleFieldBlur}
+                                    autoComplete="name"
+                                    maxLength={FULL_NAME_MAX_LENGTH}
                                     required
+                                    aria-invalid={Boolean(fieldErrors.clientName)}
                                     className={fieldErrors.clientName ? 'error-input' : ''}
                                 />
                                 {fieldErrors.clientName && (
@@ -618,10 +635,15 @@ export default function BookingForm() {
                                     type="tel"
                                     id="clientPhone"
                                     name="clientPhone"
-                                    value={bookingData.clientPhone}
+                                    value={formatPhoneNumber(bookingData.clientPhone)}
                                     onChange={handleInputChange}
                                     onBlur={handleFieldBlur}
+                                    inputMode="numeric"
+                                    autoComplete="tel"
+                                    placeholder="(818) 555-1234"
+                                    maxLength={14}
                                     required
+                                    aria-invalid={Boolean(fieldErrors.clientPhone)}
                                     className={fieldErrors.clientPhone ? 'error-input' : ''}
                                 />
                                 {fieldErrors.clientPhone && (
@@ -835,7 +857,7 @@ export default function BookingForm() {
                                 <h4>Personal Information</h4>
                                 <p><strong>Name:</strong> {bookingData.clientName}</p>
                                 <p><strong>Email:</strong> {bookingData.clientEmail}</p>
-                                <p><strong>Phone:</strong> {bookingData.clientPhone}</p>
+                                <p><strong>Phone:</strong> {formatPhoneNumber(bookingData.clientPhone)}</p>
                                 {areTherapistsReady(
                                     bookingData.serviceType,
                                     bookingData.therapistName,
@@ -929,7 +951,7 @@ export default function BookingForm() {
 
                 {/* Navigation Buttons */}
                 <div className={`form-navigation${submitStatus === 'success' ? ' form-navigation-success' : ''}`}>
-                    {currentStep !== 'personal' && submitStatus !== 'success' && (
+                    {currentStep !== 'personal' && submitStatus !== 'success' && !isSubmitting && (
                         <button type="button" onClick={prevStep} className="nav-button prev">
                             ← Previous
                         </button>
